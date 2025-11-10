@@ -4,7 +4,7 @@ build_container_local:
 run_container_local:
 	docker run -it -e PORT=8000 -p 8080:8000 ${IMAGE}:dev
 
-	build_for_production:
+build_for_production:
 	docker build \
 		--platform linux/amd64 \
     -t ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${ARTIFACTSREPO}/${IMAGE}:prod \
