@@ -10,18 +10,22 @@ st.title("AURA Project")
 url = f"{API_URL}/hello"
 
 response = requests.get(url).json()
+
 if "greeting" in response:
         st.write(response["greeting"])
 else:
         st.error("Error: 'greeting' key not found in the response.")
 
 
-# ---+---+---+---+---+---+---+---+---+---+--- #
+
 # Environment Quality Prediction Section
+sound = st.selectbox("Select Ambient Sound Level", ["Low", "Medium", "High"])
+light = st.selectbox("Select Light Intensity", ["Low", "Medium", "High"])
+crowd = st.selectbox("Select Crowd Density", ["Low", "Medium", "High"])
+feature_map = {"Low": 0.0, "Medium": 0.5, "High": 1.0}
 
 
 # Dummy definitions
-
 def predict_environment_quality(f1, f2, f3):
     return "good" if (f1 + f2 + f3) > 1.5 else "bad"
 
