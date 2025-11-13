@@ -11,3 +11,4 @@ uvicorn
 fastapi
 docker
 streamlit
+google-cloud-storage
