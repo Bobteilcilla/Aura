@@ -1,5 +1,7 @@
 from pathlib import Path
 import pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
@@ -82,7 +84,7 @@ y_val = val_df[target_columns]
 
 
 # ---------------------------------------
-# 3. Train Gradient Boosting (regression)
+# 3. Model Training
 # ---------------------------------------
 
 ''' Using sklearn's GradientBoostingRegressor with some example hyperparameters.
@@ -91,28 +93,24 @@ to be run, the learning_rate shrinks the contribution of each tree by
 learning_rate, max_depth is the maximum depth of the individual regression
 estimators. The random_state is set for reproducibility.'''
 
-''' n_estimators=300,
+model = GradientBoostingRegressor(
+    n_estimators=300,
     learning_rate=0.05,
     max_depth=3,
-    random_state=42,'''
-
-model = GradientBoostingRegressor(
-    n_estimators=300,       # many small steps
-    learning_rate=0.05,    # moderate step size
-    max_depth=3,           # shallow trees = less overfitting
-    subsample=0.8,         # a bit of randomness → better generalization
-    max_features=None,     # all 3 features, fine for your case
+    subsample=0.8,
+    max_features=None,
     random_state=42
 )
+
+
 model.fit(X_train, y_train)
+
 # ------------------------------------------------
 # 5. Saving trained model as a pickle file to disk
 # ------------------------------------------------
 
-
 joblib.dump(model, MODEL_PATH)
 print(f"Model saved to: {MODEL_PATH}")
-
 
 # ------------------------------
 # 5. Evaluate on validation set
@@ -183,7 +181,6 @@ def prediction_from_inputs(noise_db, light_lux, crowd_count):
     })
 
     discomfort_pred = model.predict(input_df)[0]
-    print(discomfort_pred.dtype)
     comfort_label = discomfort_to_label(discomfort_pred)
     return discomfort_pred, comfort_label
 
