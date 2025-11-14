@@ -2,6 +2,8 @@ from pathlib import Path
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
+import joblib
+
 
 '''
 Ready to be called from the frontend API to show the
@@ -15,8 +17,15 @@ and the function returns:
 - comfort_label: str
 
 How to call in Streamlit API:
+
+from pathlib import Path
+import joblib
 from package_aura.gradient_boosting import prediction_from_inputs
 
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_PATH = BASE_DIR / "models" / "gradient_boosting_model.pkl"
+
+model = joblib.load(MODEL_PATH)
 noise = float(input_noise)
 light = float(input_light)
 crowd = int(input_crowd)
@@ -34,6 +43,12 @@ st.success(f"Comfort Label: {label}")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 RAW_DATA_DIR = BASE_DIR / "raw-data"
+
+MODEL_DIR = BASE_DIR / "models"
+MODEL_DIR.mkdir(exist_ok=True)  # create folder if it doesn't exist
+MODEL_PATH = MODEL_DIR / "gradient_boosting_model.pkl"
+
+'''Model will be saved under Aura/models/gradient_boosting_model.pkl'''
 
 train_path = RAW_DATA_DIR / "AURA_aug_sep_60k.csv"
 val_path   = RAW_DATA_DIR / "AURA_validation_sep_12k.csv"
@@ -90,10 +105,17 @@ model = GradientBoostingRegressor(
     random_state=42
 )
 model.fit(X_train, y_train)
+# ------------------------------------------------
+# 5. Saving trained model as a pickle file to disk
+# ------------------------------------------------
+
+
+joblib.dump(model, MODEL_PATH)
+print(f"Model saved to: {MODEL_PATH}")
 
 
 # ------------------------------
-# 4. Evaluate on validation set
+# 5. Evaluate on validation set
 # -------------------------------
 
 ''' Evaluate the model on the validation set using mean squared error (MSE)
@@ -109,7 +131,7 @@ print(f"Validation R²:  {r2:.4f}")
 
 
 # ---------------------------------------
-# 5. Map discomfort_level → comfort_label
+# 6. Map discomfort_level → comfort_label
 #    (you can tweak these thresholds)
 # ---------------------------------------
 
@@ -147,7 +169,7 @@ print(val_df[["noise_db", "light_lux", "crowd_count",
               "comfort_label", "comfort_pred"]].head())
 
 # -------------------------------------------
-# 6. Function for prediction from raw inputs
+# 7. Function for prediction from raw inputs
 # -------------------------------------------
 
 def prediction_from_inputs(noise_db, light_lux, crowd_count):
@@ -166,7 +188,7 @@ def prediction_from_inputs(noise_db, light_lux, crowd_count):
     return discomfort_pred, comfort_label
 
 # ---------------------------------------
-# 6. Example: prediction from raw inputs
+# 8. Example: prediction from raw inputs
 # ---------------------------------------
 
 example = {
