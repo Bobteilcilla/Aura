@@ -180,8 +180,8 @@ def logreg_model_predict(noise_db, light_lux, crowd_count):
     pipeline, label_encoder, metadata = load_data_from_gcs(bucket_name, model_prefix)
 
     # Pipeline for preprocessing and prediction
-    pred_encoded = pipeline.predict(input_df)[0]
-    pred_label = label_encoder.inverse_transform([pred_encoded])[0]
+    pred_encoded = int(pipeline.predict(input_df)[0])
+    pred_label = str(label_encoder.inverse_transform([pred_encoded])[0])
     proba = pipeline.predict_proba(input_df)[0]
 
     return {
