@@ -12,3 +12,4 @@ fastapi
 docker
 streamlit
 gcsfs
+google-cloud-storage
