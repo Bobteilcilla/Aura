@@ -110,7 +110,7 @@ main()
 # --- API ---
 
 # Greetings response
-st.title("API Response")
+st.title("API Test Response")
 
 url = f"{API_URL}/hello"
 
@@ -134,7 +134,7 @@ if st.button("API Predict"):
     api_response = requests.get(API_url, params=params).json()
 
     if api_response.status_code == 200:
-        api_prediction = api_response.json().get("prediction")
+        api_prediction = api_response.get("prediction")
         st.success(f"API Prediction: {api_prediction}")
     else:
         st.error("Error in prediction. Please try again.")
