@@ -1,34 +1,111 @@
+# ----------------
 # IMPORTS
 import streamlit as st
 import requests
 from PIL import Image
+from pathlib import Path
+import base64
 
 
 
-# LOGO
-logo = Image.open("frontend/AURA Logo_Test.png")
- # centre the logo
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    st.image(logo, width=310)
+# ----------------
+# BACKGROUND IMAGE
+def set_background(img_path: str) -> None:
+    """Set a full-page background image using inline CSS.
+
+    Accepts a path to a local image. Safely no-ops if the file doesn't exist.
+    """
+    p = Path(img_path)
+    if not p.exists():
+        st.warning(f"Background image not found: {p.resolve()}")
+        return
+
+    ext = p.suffix.lower()
+    if ext == ".png":
+        mime = "image/png"
+    elif ext in (".jpg", ".jpeg"):
+        mime = "image/jpeg"
+    elif ext == ".gif":
+        mime = "image/gif"
+    else:
+        mime = "image/*"
+
+    b64 = base64.b64encode(p.read_bytes()).decode()
+    st.markdown(
+        f"""
+        <style>
+        /* App background */
+        [data-testid="stAppViewContainer"] {{
+            background-image: url("data:{mime};base64,{b64}");
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+        }}
+        /* Transparent header to let bg show through */
+        [data-testid="stHeader"] {{
+            background: rgba(0,0,0,0);
+        }}
+        /* Make main content transparent (optional) */
+        .block-container {{
+            background: transparent;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# Apply background image (file with spaces is handled safely)
+set_background(str(Path(__file__).parent / "AURA_background_graphic.png"))
 
 
 
-# Change this URL to the one of your API
+# ----------------
+# API
 API_URL = "https://aura-app-560310706773.europe-west1.run.app"
 
 
 
+# ----------------
 # TITLE
-st.title("AURA Project")
-st.write("Environment Quality Classifier")
+
+st.markdown(
+    """
+    <style>
+    .custom-title {
+        font-family: 'Arial', sans-serif !important;
+        font-size: 10rem !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        color: #000000 !important;
+        margin-top: -8rem !important;
+        margin-bottom: -4rem !important;
+    }
+    </style>
+    <h1 class="custom-title">AURA</h1>
+    """,
+    unsafe_allow_html=True
+)
+st.markdown(
+    """
+    <p style='
+        text-align: center;
+        font-size: 1.93rem;
+        margin-top: 0rem;
+        margin-left: -1.6rem;
+    '>
+        ENVIRONMENT QUALITY CLASSIFIER
+    </p>
+    """,
+    unsafe_allow_html=True
+)
 
 
 
-# --- INPUTS ---
+
+# ----------------
+# INPUTS
 
 # Title
-st.write("## Inputs")
 st.write("Use the selectors below to choose the ambient sound, light intensity and crowd density. These are mapped to numeric features behind the scenes.")
 
 # Environment Quality Prediction Section
@@ -51,6 +128,11 @@ def predict_environment_quality(s_value, l_value, c_value):
     """
     total = s_value + l_value + c_value
     return "good" if total > 1.5 else "bad"
+
+
+
+# ----------------
+# STYLING
 
 # Background styling
 def get_styles(prediction):
@@ -91,6 +173,32 @@ def apply_styles(styles):
     st.markdown(f"<div class='custom-feedback'>{styles['message']}</div>", unsafe_allow_html=True)
 
 
+# Initialize or re-apply styles (default: white background)
+if "styles" not in st.session_state:
+    st.session_state["styles"] = {
+        "bg_color": "#FFFFFF",
+        "text_color": "#000000",
+        "message": "",
+    }
+apply_styles(st.session_state["styles"])
+
+# If inputs change after a prior prediction, fade back to white
+current_inputs = {"sound": sound, "light": light, "crowd": crowd}
+prev_inputs = st.session_state.get("prev_inputs")
+if prev_inputs is None:
+    st.session_state["prev_inputs"] = current_inputs
+else:
+    if current_inputs != prev_inputs:
+        st.session_state["prev_inputs"] = current_inputs
+        if st.session_state.get("styles"):
+            st.session_state["styles"] = {
+                "bg_color": "#FFFFFF",
+                "text_color": "#000000",
+                "message": "",
+            }
+            apply_styles(st.session_state["styles"])  # transition handles fade-out
+
+
 
 # --- PREDICTIONS ---
 
@@ -102,6 +210,7 @@ def main():
     if st.button("Predict"):
         prediction = predict_environment_quality(s_value, l_value, c_value)
         styles = get_styles(prediction)
+        st.session_state["styles"] = styles  # AI persist across reruns
         apply_styles(styles)
 
 main()
