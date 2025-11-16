@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 from datetime import datetime, UTC
 import json
 
-from util_functions.gcs_functions import upload_data_to_gcs
+from util_functions.gcs_functions import upload_data_to_gcs, load_data_from_gcs
 
 def train_logreg_model():
     '''
@@ -156,11 +156,55 @@ def train_logreg_model():
 
 
 
+def logreg_model_predict(noise_db, light_lux, crowd_count):
+    '''
+    Load a LogReg model from GCS and make a prediction.
+
+    Args:
+        noise_db: Input for noise
+        light_lux: Input for brightness
+        crowd_count: Input for crowdedness
+
+    Output:
+        Returns comfor_label numerical and verbal as tuple.
+    '''
+    bucket_name = os.environ["MODEL_BUCKET"]
+    model_prefix = "log_reg_models"
+
+    input_df = pd.DataFrame([{
+        "noise_db": noise_db,
+        "light_lux": light_lux,
+        "crowd_count": crowd_count
+    }])
+
+    pipeline, label_encoder, metadata = load_data_from_gcs(bucket_name, model_prefix)
+
+    # Pipeline for preprocessing and prediction
+    pred_encoded = pipeline.predict(input_df)[0]
+    pred_label = label_encoder.inverse_transform([pred_encoded])[0]
+    proba = pipeline.predict_proba(input_df)[0]
+
+    return {
+        "predicted_value": pred_encoded,
+        "predicted_label": pred_label,
+        "predicted_probability": round(float(proba[pred_encoded]), 2)
+    }
+
+
+
 
 if __name__ == "__main__":
     import sys
 
     if len(sys.argv) > 1 and sys.argv[1] == "train_logreg_model":
         train_logreg_model()
+
+    elif len(sys.argv) > 1 and sys.argv[1] == "logreg_model_predict":
+        noise_db = float(sys.argv[2])
+        light_lux = float(sys.argv[3])
+        crowd_count = int(sys.argv[4])
+
+        logreg_model_predict(noise_db, light_lux, crowd_count)
+
     else:
         print("No valid command given. Try: train_logreg_model")
