@@ -283,9 +283,9 @@ else:
 # API Prediction response
 if st.button("API Predict"):
     params = {
-        "sound": s_value,
-        "light": l_value,
-        "crowd": c_value
+        "noise_db": s_value,
+        "light_lux": l_value,
+        "crowd_count": c_value
     }
 
     API_url = f"{API_URL}/predict"
