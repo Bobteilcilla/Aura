@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import pickle
 
 from package_aura.hello_aura import hello_aura
-from models.logreg_model import logreg_model_predict
+from package_aura.logreg_model import logreg_model_predict
 
 # FastAPI instance
 app = FastAPI()
