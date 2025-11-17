@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 from datetime import datetime, UTC
 import json
 
-from util_functions.gcs_functions import upload_data_to_gcs, load_data_from_gcs
+from package_aura.gcs_functions import upload_data_to_gcs, load_data_from_gcs
 
 def train_logreg_model():
     '''
