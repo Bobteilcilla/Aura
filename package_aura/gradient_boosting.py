@@ -6,6 +6,8 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
 
+from package_aura.multiple_mapping import discomfort_to_label
+
 
 '''
 Ready to be called from the frontend API to show the
@@ -129,32 +131,10 @@ print(f"Validation R²:  {r2:.4f}")
 
 
 # ---------------------------------------
-# 6. Map discomfort_level → comfort_label
-#    (you can tweak these thresholds)
+# 6. Add predicted discomfort & labels on validation set
 # ---------------------------------------
 
-def discomfort_to_label(d):
-    """
-    Mapping from the discomfort_level (0 to 1) to comfort_label.
 
-      - <= 0.2        -> very_comfortable
-      - 0.2–0.4       -> comfortable
-      - 0.4–0.6       -> neutral
-      - 0.6–0.8       -> uncomfortable
-      - > 0.8         -> stressed
-    """
-    if d <= 0.2:
-        return "very_comfortable"
-    elif d <= 0.4:
-        return "comfortable"
-    elif d <= 0.6:
-        return "neutral"
-    elif d <= 0.8:
-        return "uncomfortable"
-    else:
-        return "stressed"
-
-# Add predicted discomfort & labels on validation set
 
 ''' Show some sample predictions on the validation set for testing purposes.'''
 
