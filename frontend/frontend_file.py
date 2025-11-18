@@ -280,20 +280,38 @@ if "greeting" in response:
 else:
         st.error("Error: 'greeting' key not found in the response.")
 
-# API Prediction response
-if st.button("API Predict"):
-    params = {
-        "noise_db": s_value,
-        "light_lux": l_value,
-        "crowd_count": c_value
-    }
+st.space(size="medium")
 
-    API_url = f"{API_URL}/predict"
+with st.expander("How does Aura work?"):
+    st.write('Explanation')
 
-    api_response = requests.get(API_url, params=params).json()
+st.space(size="medium")
 
-    if api_response.status_code == 200:
-        api_prediction = api_response.get("prediction")
-        st.success(f"API Prediction: {api_prediction}")
-    else:
-        st.error("Error in prediction. Please try again.")
+# Container for Inputs
+container = st.container()
+
+with container:
+
+    # Columns inside container to display inputs in one row
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        number_noise = st.number_input('How noisy is it?')
+
+    with col2:
+        number_light = st.number_input('How bright is it?')
+
+    with col3:
+        number_crowd = st.number_input('How many people are there?')
+
+    st.space(size="small")
+
+    # Colums to center button
+    button_col1, button_col2, button_col3 = st.columns([2, 1, 2])
+
+    # Place button in the center (i.e. second) column
+    with button_col2:
+        if st.button("Get prediction"):
+            st.write(f'''Noise level is {round(number_noise, 2)},
+                     brightness level is {round(number_light, 2)},
+                     crowdiness level is {round(number_crowd, 2)}''')
