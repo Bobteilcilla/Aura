@@ -3,13 +3,14 @@ import os
 import pickle
 import json
 from datetime import datetime, UTC
+import numpy as np
 
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import GradientBoostingRegressor
-
+from sklearn.metrics import mean_absolute_error, r2_score
 from package_aura.gcs_functions import upload_data_to_gcs, load_data_from_gcs
 
 def train_gradient_boosting_model():
@@ -41,11 +42,15 @@ def train_gradient_boosting_model():
 
     # 4. Plain Gradient Boosting model (no GridSearch)
     gb = GradientBoostingRegressor(
-        n_estimators=200,
-        learning_rate=0.1,
+        n_estimators=300,
+        learning_rate=0.05,
         max_depth=3,
+        subsample=0.9,
+        min_samples_split=5,
+        min_samples_leaf=3,
         random_state=42
     )
+
 
     pipe = Pipeline(steps=[
         ("preprocess", preprocess),
@@ -57,9 +62,16 @@ def train_gradient_boosting_model():
 
     # (Optional) quick evaluation on validation set
     val_pred = pipe.predict(X_val)
-    mse_val = ((val_pred - y_val) ** 2).mean()
-    print(f"Validation MSE: {mse_val:.6f}")
 
+    mse_val = ((val_pred - y_val) ** 2).mean()
+    mae_val = mean_absolute_error(y_val, val_pred)
+    rmse_val = float(np.sqrt(mse_val))
+    r2_val = r2_score(y_val, val_pred)
+
+    print(f"Validation MSE:  {mse_val:.6f}")
+    print(f"Validation RMSE: {rmse_val:.6f}")
+    print(f"Validation MAE:  {mae_val:.6f}")
+    print(f"Validation R²:   {r2_val:.4f}")
     # 6. Create metadata
     metadata = {
         "training_timestamp": datetime.now(UTC).isoformat(),
