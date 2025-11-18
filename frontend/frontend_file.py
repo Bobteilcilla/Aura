@@ -56,7 +56,7 @@ def set_background(img_path: str) -> None:
     )
 
 # Apply background image (file with spaces is handled safely)
-set_background(str(Path(__file__).parent / "AURA_background_graphic.png"))
+set_background(str(Path(__file__).parent / "AURA_background_graphic_circle.png"))
 
 
 
@@ -118,7 +118,6 @@ sound = st.selectbox("Select Ambient Sound Level", options=["0–10 dB — Thres
                                                             "40–60 dB — Normal conversation, rainfall",
                                                             "60–80 dB — Busy street, vacuum cleaner",
                                                             "80–100 dB — Lawn mower, motorcycle, nightclub",
-                                                            "100–140+ dB — Chainsaw, jet plane, fireworks, gunshot",
                                                             "100–140+ dB — Chainsaw, jet plane, fireworks, gunshot"])
 
 light = st.selectbox("Select Light Intensity", options=["0–1 lux — Starlight, moonless night",
