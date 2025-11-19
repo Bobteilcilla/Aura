@@ -137,31 +137,31 @@ crowd = st.selectbox("Select Crowd Density", options=["0–0.5 people/m² — Em
 
 # Numeric mapping for the three categorical inputs
 sound_feature_map = {
-    "0–10 dB — Threshold of hearing, rustling leaves": 0.0,
-    "10–20 dB — Very quiet room, whisper": 0.17,
-    "20–40 dB — Soft whisper, library, quiet office": 0.34,
-    "40–60 dB — Normal conversation, rainfall": 0.51,
-    "60–80 dB — Busy street, vacuum cleaner": 0.68,
-    "80–100 dB — Lawn mower, motorcycle, nightclub": 0.85,
-    "100–140+ dB — Chainsaw, jet plane, fireworks, gunshot": 1.0
+    "0–10 dB — Threshold of hearing, rustling leaves": 10,
+    "10–20 dB — Very quiet room, whisper": 20,
+    "20–40 dB — Soft whisper, library, quiet office": 40,
+    "40–60 dB — Normal conversation, rainfall": 60,
+    "60–80 dB — Busy street, vacuum cleaner": 80,
+    "80–100 dB — Lawn mower, motorcycle, nightclub": 100,
+    "100–140+ dB — Chainsaw, jet plane, fireworks, gunshot": 140
 }
 
 light_feature_map = {
-    "0–1 lux — Starlight, moonless night": 0.0,
-    "1–10 lux — Full moon": 0.17,
-    "10–100 lux — Twilight, dim indoor lighting": 0.34,
-    "100–500 lux — Normal indoor lighting, office": 0.51,
-    "500–5,000 lux — Bright office, overcast outdoor daylight": 0.68,
-    "5,000–20,000 lux — Outdoor daylight (not direct sun)": 0.85,
-    "20,000–100,000 lux — Direct sunlight (morning to midday)": 1.0
+    "0–1 lux — Starlight, moonless night": 1,
+    "1–10 lux — Full moon": 10,
+    "10–100 lux — Twilight, dim indoor lighting": 100,
+    "100–500 lux — Normal indoor lighting, office": 500,
+    "500–5,000 lux — Bright office, overcast outdoor daylight": 5000,
+    "5,000–20,000 lux — Outdoor daylight (not direct sun)": 20000,
+    "20,000–100,000 lux — Direct sunlight (morning to midday)": 100000
 }
 
-crowd_feature_map = {"0–0.5 people/m² — Empty / Barely occupied": 0.0,
-                     "0.5–1.5 people/m² — Light crowd": 0.17,
-                     "1.5–3 people/m² — Moderate crowd": 0.34,
-                     "3–4.5 people/m² — Dense crowd": 0.51,
-                     "4.5–6 people/m² — Very dense crowd": 0.68,
-                     "6+ people/m² — Extreme density / Packed crowd": 1.0
+crowd_feature_map = {"0–0.5 people/m² — Empty / Barely occupied": 3.3,
+                     "0.5–1.5 people/m² — Light crowd": 6.6,
+                     "1.5–3 people/m² — Moderate crowd": 9.9,
+                     "3–4.5 people/m² — Dense crowd": 13.2,
+                     "4.5–6 people/m² — Very dense crowd": 16.5,
+                     "6+ people/m² — Extreme density / Packed crowd": 20.0
 }
 
 # Numeric mapping for the three categorical inputs
@@ -266,6 +266,40 @@ main()
 
 
 # --- API RESPONSE ---
+
+
+if st.button("API_Predict"):
+    params = {
+        "noise_db": s_value,
+        "light_lux": l_value,
+        "crowd_count": c_value
+    }
+
+    URL = f"{API_URL}/predict"
+
+    response = requests.get(URL, params=params)
+
+    if response.status_code == 200:
+        result = response.json()
+        score = result.get("discomfort_score", "N/A")
+        st.success(f"Predicted discomfort score: {score}")
+    else:
+        st.error("Error in prediction. Please try again.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Greetings response
 st.title("API Test Response")
