@@ -1,15 +1,18 @@
-# ----------------
-# IMPORTS
+# ------- #
+# IMPORTS #
+# ------- #
+
 import streamlit as st
 import requests
 from PIL import Image
 from pathlib import Path
 import base64
+from package_aura.multiple_mapping import discomfort_to_label
 
 
-
-# ----------------
-# BACKGROUND IMAGE
+# ---------------- #
+# BACKGROUND IMAGE #
+# ---------------- #
 
 def set_background(img_path: str) -> None:
     """Set a full-page background image using inline CSS.
@@ -60,14 +63,17 @@ set_background(str(Path(__file__).parent / "AURA_background_graphic_circle.png")
 
 
 
-# ----------------
-# API
+# --- #
+# API #
+# --- #
+
 API_URL = "https://aura-app-560310706773.europe-west1.run.app"
 
 
 
-# ----------------
-# TITLE
+# ----- #
+# TITLE #
+# ----- #
 
 # Main Title
 st.markdown(
@@ -105,8 +111,9 @@ st.markdown(
 
 
 
-# ----------------
-# INPUTS
+# ------ #
+# INPUTS #
+# ------ #
 
 # Title
 st.write("Use the selectors below to choose the ambient sound, light intensity and crowd density. Press 'Predict' to classify the environment quality.")
@@ -169,34 +176,55 @@ s_value = sound_feature_map.get(sound, 0.0)
 l_value = light_feature_map.get(light, 0.0)
 c_value = crowd_feature_map.get(crowd, 0.0)
 
-# Local Prediction Logic
-def predict_environment_quality(s_value, l_value, c_value):
-    """
-    Accept numeric feature values and return a simple quality label.
+# # Local Prediction Logic
+# def predict_environment_quality(s_value, l_value, c_value):
+#     """
+#     Accept numeric feature values and return a simple quality label.
 
-    Current rule: sum of features > 1.5 -> good, else bad. TO BE REPLACED WITH MODEL!
-    """
-    total = s_value + l_value + c_value
-    return "bad" if total > 1.5 else "good"
+#     Current rule: sum of features > 1.5 -> good, else bad. TO BE REPLACED WITH MODEL!
+#     """
+#     total = s_value + l_value + c_value
+#     return "bad" if total > 1.5 else "good"
 
 
 
-# ----------------
-# STYLING
+# ------------------ #
+# PREDICTION STYLING #
+# ------------------ #
 
 # Background styling
-def get_styles(prediction):
-    if prediction == "good":
-        return {
-            "bg_color": "#b6fcb6",
-            "text_color": "#000000",
-            "message": "✅ Environment is GOOD"
-        }
-    return {
-        "bg_color": "#ffb6b6",
-        "text_color": "#000000",
-        "message": "⚠️ Environment is BAD"
+
+def label_to_styles(label: str, score: float):
+    label = label.lower()
+
+    color_map = {
+        "very_comfortable": ("#b6fcb6", "Environment is Very Comfortable"),
+        "comfortable": ("#d8fcd1", "Environment is Comfortable"),
+        "neutral": ("#fffab6", "Environment is Neutral"),
+        "uncomfortable": ("#fdd9d9", "Environment is Uncomfortable"),
+        "stressed": ("#ffb6b6", "Environment is Stressed"),
     }
+
+    bg_color, comfort_response = color_map.get(label, ("#F2F2F2", "Unknown environment status"))
+    full_message = f"{comfort_response} (score: {score:.2f})"
+    return {
+        "bg_color": bg_color,
+        "text_color": "#000000",
+        "message": full_message
+    }
+
+# def get_styles(prediction):
+#     if prediction == "good":
+#         return {
+#             "bg_color": "#b6fcb6",
+#             "text_color": "#000000",
+#             "message": "✅ Environment is GOOD"
+#         }
+#     return {
+#         "bg_color": "#ffb6b6",
+#         "text_color": "#000000",
+#         "message": "⚠️ Environment is BAD"
+#     }
 
 # Text styling
 def apply_styles(styles):
@@ -249,24 +277,25 @@ else:
             apply_styles(st.session_state["styles"])  # transition handles fade-out
 
 
+# ----------- #
+# PREDICTIONS #
+# ----------- #
 
-# --- PREDICTIONS ---
+# # Local prediction
 
-# Local prediction
-def main():
+# def main():
 
-    st.write(f"Mapped values — sound: {s_value}, light: {l_value}, crowd: {c_value}")
+#     st.write(f"Mapped values — sound: {s_value}, light: {l_value}, crowd: {c_value}")
 
-    if st.button("Predict"):
-        prediction = predict_environment_quality(s_value, l_value, c_value)
-        styles = get_styles(prediction)
-        apply_styles(styles)
+#     if st.button("Predict"):
+#         prediction = predict_environment_quality(s_value, l_value, c_value)
+#         styles = get_styles(prediction)
+#         apply_styles(styles)
 
-main()
+# main()
 
 
-# --- API RESPONSE ---
-
+# API prediction
 
 if st.button("API_Predict"):
     params = {
@@ -276,13 +305,19 @@ if st.button("API_Predict"):
     }
 
     URL = f"{API_URL}/predict"
-
     response = requests.get(URL, params=params)
 
     if response.status_code == 200:
         result = response.json()
-        score = result.get("discomfort_score", "N/A")
-        st.success(f"Predicted discomfort score: {score}")
+        score = result.get("discomfort_score", None)
+        
+        if score is not None:
+            label = discomfort_to_label(score)
+            styles = label_to_styles(label, score)
+            apply_styles(styles)
+        else:
+            st.warning("No discomfort score returned in the response.")
+        
     else:
         st.error("Error in prediction. Please try again.")
 
@@ -301,50 +336,50 @@ if st.button("API_Predict"):
 
 
 
-# Greetings response
-st.title("API Test Response")
+# # Greetings response
+# st.title("API Test Response")
 
-url = f"{API_URL}/hello"
+# url = f"{API_URL}/hello"
 
-response = requests.get(url).json()
+# response = requests.get(url).json()
 
-if "greeting" in response:
-        st.write(response["greeting"])
-else:
-        st.error("Error: 'greeting' key not found in the response.")
+# if "greeting" in response:
+#         st.write(response["greeting"])
+# else:
+#         st.error("Error: 'greeting' key not found in the response.")
 
-st.space(size="medium")
+# st.space(size="medium")
 
-with st.expander("How does Aura work?"):
-    st.write('Explanation')
+# with st.expander("How does Aura work?"):
+#     st.write('Explanation')
 
-st.space(size="medium")
+# st.space(size="medium")
 
-# Container for Inputs
-container = st.container()
+# # Container for Inputs
+# container = st.container()
 
-with container:
+# with container:
 
-    # Columns inside container to display inputs in one row
-    col1, col2, col3 = st.columns(3)
+#     # Columns inside container to display inputs in one row
+#     col1, col2, col3 = st.columns(3)
 
-    with col1:
-        number_noise = st.number_input('How noisy is it?')
+#     with col1:
+#         number_noise = st.number_input('How noisy is it?')
 
-    with col2:
-        number_light = st.number_input('How bright is it?')
+#     with col2:
+#         number_light = st.number_input('How bright is it?')
 
-    with col3:
-        number_crowd = st.number_input('How many people are there?')
+#     with col3:
+#         number_crowd = st.number_input('How many people are there?')
 
-    st.space(size="small")
+#     st.space(size="small")
 
-    # Colums to center button
-    button_col1, button_col2, button_col3 = st.columns([2, 1, 2])
+#     # Colums to center button
+#     button_col1, button_col2, button_col3 = st.columns([2, 1, 2])
 
-    # Place button in the center (i.e. second) column
-    with button_col2:
-        if st.button("Get prediction"):
-            st.write(f'''Noise level is {round(number_noise, 2)},
-                     brightness level is {round(number_light, 2)},
-                     crowdiness level is {round(number_crowd, 2)}''')
+#     # Place button in the center (i.e. second) column
+#     with button_col2:
+#         if st.button("Get prediction"):
+#             st.write(f'''Noise level is {round(number_noise, 2)},
+#                      brightness level is {round(number_light, 2)},
+#                      crowdiness level is {round(number_crowd, 2)}''')
