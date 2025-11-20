@@ -6,7 +6,13 @@ import streamlit as st
 import requests
 from PIL import Image
 from pathlib import Path
+import sys
 import base64
+
+#Add the root of the project (where package_aura is ) to the  sys.path
+ROOT_DIR = Path(__file__).resolve().parent.parent  # /mount/src/aura
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 from package_aura.multiple_mapping import discomfort_to_label
 
 
