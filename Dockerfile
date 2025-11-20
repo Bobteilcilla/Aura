@@ -1,5 +1,6 @@
 FROM python:3.12-slim
 
+ENV MODEL_BUCKET=aura_model_data
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
