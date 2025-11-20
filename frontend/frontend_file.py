@@ -16,6 +16,15 @@ if str(ROOT_DIR) not in sys.path:
 from package_aura.multiple_mapping import discomfort_to_label
 
 
+
+# ---------- #
+# PAGE WIDTH #
+# ---------- #
+
+st.set_page_config(layout="centered") 
+
+
+
 # ---------------- #
 # BACKGROUND IMAGE #
 # ---------------- #
@@ -65,7 +74,7 @@ def set_background(img_path: str) -> None:
     )
 
 # Apply background image (file with spaces is handled safely)
-set_background(str(Path(__file__).parent / "AURA_background_graphic_circle.png"))
+set_background(str(Path(__file__).parent / "AURA_background_graphic.png"))
 
 
 
@@ -117,15 +126,15 @@ st.markdown(
 
 
 
-# ------ #
-# INPUTS #
-# ------ #
+# ----------------- #
+# SELECTION SECTION #
+# ----------------- #
 
 # Title
 st.write("Use the selectors below to choose the ambient sound, light intensity and crowd density. Press 'Predict' to classify the environment quality.")
 
 # Environment Quality Prediction Selectors
-sound = st.selectbox("Select Ambient Sound Level", options=["0–10 dB — Threshold of hearing, rustling leaves",
+sound = st.selectbox("How noisy is it?", options=["0–10 dB — Threshold of hearing, rustling leaves",
                                                             "10–20 dB — Very quiet room, whisper",
                                                             "20–40 dB — Soft whisper, library, quiet office",
                                                             "40–60 dB — Normal conversation, rainfall",
@@ -133,7 +142,7 @@ sound = st.selectbox("Select Ambient Sound Level", options=["0–10 dB — Thres
                                                             "80–100 dB — Lawn mower, motorcycle, nightclub",
                                                             "100–140+ dB — Chainsaw, jet plane, fireworks, gunshot"])
 
-light = st.selectbox("Select Light Intensity", options=["0–1 lux — Starlight, moonless night",
+light = st.selectbox("How bright is it?", options=["0–1 lux — Starlight, moonless night",
                                                         "1–10 lux — Full moon",
                                                         "10–100 lux — Twilight, dim indoor lighting",
                                                         "100–500 lux — Normal indoor lighting, office",
@@ -141,7 +150,7 @@ light = st.selectbox("Select Light Intensity", options=["0–1 lux — Starlight
                                                         "5,000–20,000 lux — Outdoor daylight (not direct sun)",
                                                         "20,000–100,000 lux — Direct sunlight (morning to midday)"])
 
-crowd = st.selectbox("Select Crowd Density", options=["0–0.5 people/m² — Empty / Barely occupied",
+crowd = st.selectbox("How many people are there?", options=["0–0.5 people/m² — Empty / Barely occupied",
                                                       "0.5–1.5 people/m² — Light crowd",
                                                       "1.5–3 people/m² — Moderate crowd",
                                                       "3–4.5 people/m² — Dense crowd",
@@ -182,16 +191,6 @@ s_value = sound_feature_map.get(sound, 0.0)
 l_value = light_feature_map.get(light, 0.0)
 c_value = crowd_feature_map.get(crowd, 0.0)
 
-# # Local Prediction Logic
-# def predict_environment_quality(s_value, l_value, c_value):
-#     """
-#     Accept numeric feature values and return a simple quality label.
-
-#     Current rule: sum of features > 1.5 -> good, else bad. TO BE REPLACED WITH MODEL!
-#     """
-#     total = s_value + l_value + c_value
-#     return "bad" if total > 1.5 else "good"
-
 
 
 # ------------------ #
@@ -199,7 +198,6 @@ c_value = crowd_feature_map.get(crowd, 0.0)
 # ------------------ #
 
 # Background styling
-
 def label_to_styles(label: str, score: float):
     label = label.lower()
 
@@ -211,28 +209,31 @@ def label_to_styles(label: str, score: float):
         "stressed": ("#ffb6b6", "Environment is Stressed"),
     }
 
-    bg_color, comfort_response = color_map.get(label, ("#F2F2F2", "Unknown environment status"))
-    full_message = f"{comfort_response} (score: {score:.2f})"
+    bg_color, message = color_map.get(label, ("#F2F2F2", "Unknown environment status"))
+    score_line = f"score: {score:.2f}"
+    
     return {
         "bg_color": bg_color,
         "text_color": "#000000",
-        "message": full_message
+        "message": message,
+        "score": score_line
     }
 
-# def get_styles(prediction):
-#     if prediction == "good":
-#         return {
-#             "bg_color": "#b6fcb6",
-#             "text_color": "#000000",
-#             "message": "✅ Environment is GOOD"
-#         }
-#     return {
-#         "bg_color": "#ffb6b6",
-#         "text_color": "#000000",
-#         "message": "⚠️ Environment is BAD"
-#     }
-
 # Text styling
+def apply_button_styles():
+    st.markdown("""
+        <style>
+        .stButton > button {
+            font-weight: bold;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-left: 55px;
+            padding: 0.6em 1.5em;
+            width: 100%;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
 def apply_styles(styles):
     st.markdown(
         f"""
@@ -248,14 +249,20 @@ def apply_styles(styles):
             margin-top: 20px;
             padding: 0.5em 1em;
             border-radius: 0.5em;
-            background-color: rgba(255, 255, 255, 0.5);
-            display: inline-block;
+            text-align: center;
+            width: 100%;
+        }}
+        .score-line {{
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-align: center;
         }}
         </style>
         """,
         unsafe_allow_html=True
     )
     st.markdown(f"<div class='custom-feedback'>{styles['message']}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='score-line'>{styles['score']}</div>", unsafe_allow_html=True)
 
 # Initialize or re-apply styles (default: grey background)
 if "styles" not in st.session_state:
@@ -263,6 +270,7 @@ if "styles" not in st.session_state:
         "bg_color": "#F2F2F2",
         "text_color": "#000000",
         "message": "",
+        "score": "",
     }
 apply_styles(st.session_state["styles"])
 
@@ -279,68 +287,55 @@ else:
                 "bg_color": "#F2F2F2",
                 "text_color": "#000000",
                 "message": "",
+                "score": "",
             }
             apply_styles(st.session_state["styles"])  # transition handles fade-out
+
 
 
 # ----------- #
 # PREDICTIONS #
 # ----------- #
 
-# # Local prediction
-
-# def main():
-
-#     st.write(f"Mapped values — sound: {s_value}, light: {l_value}, crowd: {c_value}")
-
-#     if st.button("Predict"):
-#         prediction = predict_environment_quality(s_value, l_value, c_value)
-#         styles = get_styles(prediction)
-#         apply_styles(styles)
-
-# main()
-
-
 # API prediction
 
-if st.button("API_Predict"):
-    params = {
-        "noise_db": s_value,
-        "light_lux": l_value,
-        "crowd_count": c_value
-    }
+# Apply button styles
+apply_button_styles()
 
-    URL = f"{API_URL}/predict"
-    response = requests.get(URL, params=params)
+# Set columns
+col1, col2, col3 = st.columns([1, 3, 1])
 
-    if response.status_code == 200:
-        result = response.json()
-        score = result.get("discomfort_score", None)
-        
-        if score is not None:
-            label = discomfort_to_label(score)
-            styles = label_to_styles(label, score)
-            apply_styles(styles)
+# Prediction button
+with col2:
+    if st.button("TEST THE ENVIRONMENT"):
+        params = {
+            "noise_db": s_value,
+            "light_lux": l_value,
+            "crowd_count": c_value
+        }
+
+        URL = f"{API_URL}/predict"
+        response = requests.get(URL, params=params)
+
+        if response.status_code == 200:
+            result = response.json()
+            score = result.get("discomfort_score", None)
+            
+            if score is not None:
+                label = discomfort_to_label(score)
+                styles = label_to_styles(label, score)
+                apply_styles(styles)
+            else:
+                st.warning("No discomfort score returned in the response.")
+            
         else:
-            st.warning("No discomfort score returned in the response.")
-        
-    else:
-        st.error("Error in prediction. Please try again.")
+            st.error("Error in prediction. Please try again.")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+# # --------------------- #
+# # TESTING THE API CALLS #
+# # --------------------- #
 
 # # Greetings response
 # st.title("API Test Response")
