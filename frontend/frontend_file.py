@@ -9,20 +9,18 @@ from pathlib import Path
 import sys
 import base64
 
-#Add the root of the project (where package_aura is ) to the  sys.path
+# Add the root of the project (where package_aura is ) to the sys.path
 ROOT_DIR = Path(__file__).resolve().parent.parent  # /mount/src/aura
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 from package_aura.multiple_mapping import discomfort_to_label
 
 
-
 # ---------- #
 # PAGE WIDTH #
 # ---------- #
 
-st.set_page_config(layout="centered") 
-
+st.set_page_config(layout="centered")
 
 
 # ---------------- #
@@ -77,13 +75,11 @@ def set_background(img_path: str) -> None:
 set_background(str(Path(__file__).parent / "AURA_background_graphic.png"))
 
 
-
 # --- #
 # API #
 # --- #
 
 API_URL = "https://aura-app-560310706773.europe-west1.run.app"
-
 
 
 # ----- #
@@ -125,37 +121,54 @@ st.markdown(
 )
 
 
-
 # ----------------- #
 # SELECTION SECTION #
 # ----------------- #
 
 # Title
-st.write("Use the selectors below to choose the ambient sound, light intensity and crowd density. Press 'Predict' to classify the environment quality.")
+st.write(
+    "Use the selectors below to choose the ambient sound, light intensity and crowd density. "
+    "Press 'Predict' to classify the environment quality."
+)
 
 # Environment Quality Prediction Selectors
-sound = st.selectbox("How noisy is it?", options=["0–10 dB — Threshold of hearing, rustling leaves",
-                                                            "10–20 dB — Very quiet room, whisper",
-                                                            "20–40 dB — Soft whisper, library, quiet office",
-                                                            "40–60 dB — Normal conversation, rainfall",
-                                                            "60–80 dB — Busy street, vacuum cleaner",
-                                                            "80–100 dB — Lawn mower, motorcycle, nightclub",
-                                                            "100–140+ dB — Chainsaw, jet plane, fireworks, gunshot"])
+sound = st.selectbox(
+    "How noisy is it?",
+    options=[
+        "0–10 dB — Threshold of hearing, rustling leaves",
+        "10–20 dB — Very quiet room, whisper",
+        "20–40 dB — Soft whisper, library, quiet office",
+        "40–60 dB — Normal conversation, rainfall",
+        "60–80 dB — Busy street, vacuum cleaner",
+        "80–100 dB — Lawn mower, motorcycle, nightclub",
+        "100–140+ dB — Chainsaw, jet plane, fireworks, gunshot",
+    ],
+)
 
-light = st.selectbox("How bright is it?", options=["0–1 lux — Starlight, moonless night",
-                                                        "1–10 lux — Full moon",
-                                                        "10–100 lux — Twilight, dim indoor lighting",
-                                                        "100–500 lux — Normal indoor lighting, office",
-                                                        "500–5,000 lux — Bright office, overcast outdoor daylight",
-                                                        "5,000–20,000 lux — Outdoor daylight (not direct sun)",
-                                                        "20,000–100,000 lux — Direct sunlight (morning to midday)"])
+light = st.selectbox(
+    "How bright is it?",
+    options=[
+        "0–1 lux — Starlight, moonless night",
+        "1–10 lux — Full moon",
+        "10–100 lux — Twilight, dim indoor lighting",
+        "100–500 lux — Normal indoor lighting, office",
+        "500–5,000 lux — Bright office, overcast outdoor daylight",
+        "5,000–20,000 lux — Outdoor daylight (not direct sun)",
+        "20,000–100,000 lux — Direct sunlight (morning to midday)",
+    ],
+)
 
-crowd = st.selectbox("How many people are there?", options=["0–0.5 people/m² — Empty / Barely occupied",
-                                                      "0.5–1.5 people/m² — Light crowd",
-                                                      "1.5–3 people/m² — Moderate crowd",
-                                                      "3–4.5 people/m² — Dense crowd",
-                                                      "4.5–6 people/m² — Very dense crowd",
-                                                      "6+ people/m² — Extreme density / Packed crowd"])
+crowd = st.selectbox(
+    "How many people are there?",
+    options=[
+        "0–0.5 people/m² — Empty / Barely occupied",
+        "0.5–1.5 people/m² — Light crowd",
+        "1.5–3 people/m² — Moderate crowd",
+        "3–4.5 people/m² — Dense crowd",
+        "4.5–6 people/m² — Very dense crowd",
+        "6+ people/m² — Extreme density / Packed crowd",
+    ],
+)
 
 # Numeric mapping for the three categorical inputs
 sound_feature_map = {
@@ -165,7 +178,7 @@ sound_feature_map = {
     "40–60 dB — Normal conversation, rainfall": 60,
     "60–80 dB — Busy street, vacuum cleaner": 80,
     "80–100 dB — Lawn mower, motorcycle, nightclub": 100,
-    "100–140+ dB — Chainsaw, jet plane, fireworks, gunshot": 140
+    "100–140+ dB — Chainsaw, jet plane, fireworks, gunshot": 140,
 }
 
 light_feature_map = {
@@ -175,15 +188,16 @@ light_feature_map = {
     "100–500 lux — Normal indoor lighting, office": 500,
     "500–5,000 lux — Bright office, overcast outdoor daylight": 5000,
     "5,000–20,000 lux — Outdoor daylight (not direct sun)": 20000,
-    "20,000–100,000 lux — Direct sunlight (morning to midday)": 100000
+    "20,000–100,000 lux — Direct sunlight (morning to midday)": 100000,
 }
 
-crowd_feature_map = {"0–0.5 people/m² — Empty / Barely occupied": 3.3,
-                     "0.5–1.5 people/m² — Light crowd": 6.6,
-                     "1.5–3 people/m² — Moderate crowd": 9.9,
-                     "3–4.5 people/m² — Dense crowd": 13.2,
-                     "4.5–6 people/m² — Very dense crowd": 16.5,
-                     "6+ people/m² — Extreme density / Packed crowd": 20.0
+crowd_feature_map = {
+    "0–0.5 people/m² — Empty / Barely occupied": 3.3,
+    "0.5–1.5 people/m² — Light crowd": 6.6,
+    "1.5–3 people/m² — Moderate crowd": 9.9,
+    "3–4.5 people/m² — Dense crowd": 13.2,
+    "4.5–6 people/m² — Very dense crowd": 16.5,
+    "6+ people/m² — Extreme density / Packed crowd": 20.0,
 }
 
 # Numeric mapping for the three categorical inputs
@@ -192,12 +206,10 @@ l_value = light_feature_map.get(light, 0.0)
 c_value = crowd_feature_map.get(crowd, 0.0)
 
 
-
 # ------------------ #
 # PREDICTION STYLING #
 # ------------------ #
 
-# Background styling
 def label_to_styles(label: str, score: float):
     label = label.lower()
 
@@ -209,32 +221,39 @@ def label_to_styles(label: str, score: float):
         "stressed": ("#ffb6b6", "Environment is Stressed"),
     }
 
-    bg_color, message = color_map.get(label, ("#F2F2F2", "Unknown environment status"))
+    bg_color, message = color_map.get(
+        label,
+        ("#F2F2F2", "Unknown environment status")
+    )
     score_line = f"score: {score:.2f}"
-    
+
     return {
         "bg_color": bg_color,
         "text_color": "#000000",
         "message": message,
-        "score": score_line
+        "score": score_line,
     }
 
-# Text styling
+
 def apply_button_styles():
-    st.markdown("""
+    st.markdown(
+        """
         <style>
         .stButton > button {
             font-weight: bold;
             font-size: 1.5rem;
-            font-weight: bold;
             margin-left: 55px;
             padding: 0.6em 1.5em;
             width: 100%;
         }
         </style>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
-def apply_styles(styles):
+
+def apply_background(styles):
+    """Only set app background / text color; no feedback rendering here."""
     st.markdown(
         f"""
         <style>
@@ -243,6 +262,23 @@ def apply_styles(styles):
             color: {styles['text_color']};
             transition: background-color 1.0s ease;
         }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_feedback(styles, placeholder):
+    """Draw feedback in a fixed placeholder below the button (no layout jump above)."""
+    msg = styles.get("message", "")
+    score = styles.get("score", "")
+    if not (msg or score):
+        placeholder.empty()
+        return
+
+    placeholder.markdown(
+        f"""
+        <style>
         .custom-feedback {{
             font-weight: bold;
             font-size: 1.5rem;
@@ -251,6 +287,7 @@ def apply_styles(styles):
             border-radius: 0.5em;
             text-align: center;
             width: 100%;
+            background-color: rgba(255, 255, 255, 0.5);
         }}
         .score-line {{
             font-weight: bold;
@@ -258,13 +295,17 @@ def apply_styles(styles):
             text-align: center;
         }}
         </style>
+        <div class='custom-feedback'>{msg}</div>
+        <div class='score-line'>{score}</div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
-    st.markdown(f"<div class='custom-feedback'>{styles['message']}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='score-line'>{styles['score']}</div>", unsafe_allow_html=True)
 
-# Initialize or re-apply styles (default: grey background)
+
+# ---------- #
+# STATE INIT #
+# ---------- #
+
 if "styles" not in st.session_state:
     st.session_state["styles"] = {
         "bg_color": "#F2F2F2",
@@ -272,46 +313,47 @@ if "styles" not in st.session_state:
         "message": "",
         "score": "",
     }
-apply_styles(st.session_state["styles"])
 
-# If inputs change after a prior prediction, fade back to grey
+# Always apply current background once
+apply_background(st.session_state["styles"])
+
+# Reset styles in state if inputs change (no immediate feedback rendering here)
 current_inputs = {"sound": sound, "light": light, "crowd": crowd}
 prev_inputs = st.session_state.get("prev_inputs")
+
 if prev_inputs is None:
     st.session_state["prev_inputs"] = current_inputs
 else:
     if current_inputs != prev_inputs:
         st.session_state["prev_inputs"] = current_inputs
-        if st.session_state.get("styles"):
-            st.session_state["styles"] = {
-                "bg_color": "#F2F2F2",
-                "text_color": "#000000",
-                "message": "",
-                "score": "",
-            }
-            apply_styles(st.session_state["styles"])  # transition handles fade-out
-
+        st.session_state["styles"] = {
+            "bg_color": "#F2F2F2",
+            "text_color": "#000000",
+            "message": "",
+            "score": "",
+        }
 
 
 # ----------- #
 # PREDICTIONS #
 # ----------- #
 
-# API prediction
-
-# Apply button styles
+# Apply button CSS
 apply_button_styles()
 
-# Set columns
+# Columns (center the button)
 col1, col2, col3 = st.columns([1, 3, 1])
 
-# Prediction button
+# Placeholder for feedback (ALWAYS below button, single location)
+feedback_placeholder = st.empty()
+
+# The button itself never moves; only feedback content changes in placeholder
 with col2:
     if st.button("TEST THE ENVIRONMENT"):
         params = {
             "noise_db": s_value,
             "light_lux": l_value,
-            "crowd_count": c_value
+            "crowd_count": c_value,
         }
 
         URL = f"{API_URL}/predict"
@@ -320,67 +362,16 @@ with col2:
         if response.status_code == 200:
             result = response.json()
             score = result.get("discomfort_score", None)
-            
+
             if score is not None:
                 label = discomfort_to_label(score)
                 styles = label_to_styles(label, score)
-                apply_styles(styles)
+                st.session_state["styles"] = styles
+                apply_background(styles)
             else:
                 st.warning("No discomfort score returned in the response.")
-            
         else:
             st.error("Error in prediction. Please try again.")
 
-
-
-# # --------------------- #
-# # TESTING THE API CALLS #
-# # --------------------- #
-
-# # Greetings response
-# st.title("API Test Response")
-
-# url = f"{API_URL}/hello"
-
-# response = requests.get(url).json()
-
-# if "greeting" in response:
-#         st.write(response["greeting"])
-# else:
-#         st.error("Error: 'greeting' key not found in the response.")
-
-# st.space(size="medium")
-
-# with st.expander("How does Aura work?"):
-#     st.write('Explanation')
-
-# st.space(size="medium")
-
-# # Container for Inputs
-# container = st.container()
-
-# with container:
-
-#     # Columns inside container to display inputs in one row
-#     col1, col2, col3 = st.columns(3)
-
-#     with col1:
-#         number_noise = st.number_input('How noisy is it?')
-
-#     with col2:
-#         number_light = st.number_input('How bright is it?')
-
-#     with col3:
-#         number_crowd = st.number_input('How many people are there?')
-
-#     st.space(size="small")
-
-#     # Colums to center button
-#     button_col1, button_col2, button_col3 = st.columns([2, 1, 2])
-
-#     # Place button in the center (i.e. second) column
-#     with button_col2:
-#         if st.button("Get prediction"):
-#             st.write(f'''Noise level is {round(number_noise, 2)},
-#                      brightness level is {round(number_light, 2)},
-#                      crowdiness level is {round(number_crowd, 2)}''')
+# Now render feedback once, under the button, using the latest styles
+render_feedback(st.session_state["styles"], feedback_placeholder)
