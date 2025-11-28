@@ -7,6 +7,7 @@ from sklearn.linear_model import ElasticNet
 from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 from google.cloud import storage
 import pickle
@@ -165,7 +166,70 @@ def linreg_model_predict(noise_db, light_lux, crowd_count):
     }
 
 
+def model_evaluate(model_prefix):
+    '''
+    Load a model from GCS and get evaluation.
 
+    Args:
+        model_prefix: Model specific folder in model GCS bucket, e.g.:
+            gb_models for gradient boosting model
+            lin_reg_models for linear regression model
+    '''
+    # Map file-name to folder name
+    if model_prefix == "gb_models":
+        model_type = "gb"
+    elif model_prefix == "lin_reg_models":
+        model_type = "linreg"
+    else:
+        print("Model not found")
+        return None
+
+    # Get model
+    bucket_name = os.environ["MODEL_BUCKET"]
+    model_prefix = model_prefix
+
+    model, metadata = load_data_from_gcs(bucket_name, model_prefix, model_type)
+
+    # Get data
+    df_val = pd.read_csv("gs://aura_datasets_training_validation/AURA_validation_sep_12k.csv")
+
+    feature_cols = ["noise_db", "light_lux", "crowd_count"]
+    target_col = "discomfort_level"
+
+    X_val = df_val[feature_cols]
+    y_val = df_val[target_col]
+
+    # Get baseline
+    baseline_value = y_val.mean()
+    y_pred_baseline = np.full(shape=len(y_val), fill_value=baseline_value)
+
+    # Baseline evaluation metrics
+    mae_baseline = mean_absolute_error(y_val, y_pred_baseline)
+    mse_baseline = mean_squared_error(y_val, y_pred_baseline)
+    rmse_baseline = np.sqrt(mse_baseline)
+
+    # Predict
+    y_pred = model.predict(X_val)
+
+    # Get evaluation metrics
+    mae = mean_absolute_error(y_val, y_pred)
+    mse = mean_squared_error(y_val, y_pred)
+    rmse = np.sqrt(mse)
+
+    print(
+        f'''
+        Baseline model (Mean)
+        MAE baseline: {mae_baseline:.4f},
+        MSE baseline: {mse_baseline:.4f},
+        RMSE baseline: {rmse_baseline:.4f},
+
+        Model ({model_type})
+        MAE: {mae:.4f},
+        MSE: {mse:.4f},
+        RMSE: {rmse:.4f},
+        '''
+    )
+    return None
 
 if __name__ == "__main__":
     import sys
@@ -179,6 +243,10 @@ if __name__ == "__main__":
         crowd_count = int(sys.argv[4])
 
         linreg_model_predict(noise_db, light_lux, crowd_count)
+
+    elif len(sys.argv) > 1 and sys.argv[1] == "model_evaluate":
+        model_prefix = sys.argv[2]
+        model_evaluate(model_prefix)
 
     else:
         print("No valid command given.")
