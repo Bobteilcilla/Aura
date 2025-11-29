@@ -2,7 +2,7 @@ pytest
 pylint
 ipdb
 jupyterlab
-numpy
+numpy==1.26.4
 pandas
 matplotlib
 seaborn
@@ -13,3 +13,9 @@ docker
 streamlit
 gcsfs
 google-cloud-storage
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.2.0+cpu
+torchvision==0.17.0+cpu
+
+ultralytics==8.1.0
