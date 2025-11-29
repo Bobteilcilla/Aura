@@ -50,7 +50,6 @@ def hello():
 # -------------------------- #
 
 @app.get("/predict")
-<<<<<<< HEAD
 def predict(noise_db, light_lux, crowd_count, model_type: str = "linreg"):
     if model_type == "linreg":
         print("Received model_type:", model_type)
@@ -60,7 +59,6 @@ def predict(noise_db, light_lux, crowd_count, model_type: str = "linreg"):
         return gradient_boosting_predict(noise_db, light_lux, crowd_count)
     else:
         return {"error": "Invalid model_type. Choose 'linreg' or 'gb'."}
-=======
 def predict(noise_db: float, light_lux: float, crowd_count: float):
     """
     Main AURA prediction endpoint.
@@ -128,4 +126,3 @@ def yolo_crowd(payload: ImagePayload) -> Dict[str, object]:
         "crowd_count": crowd_count,
         "image_base64": "data:image/jpeg;base64," + img_b64
     }
->>>>>>> 7c05b16bb2b3fe5ae75dc42ca053639ece95749a
