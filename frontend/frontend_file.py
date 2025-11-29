@@ -13,7 +13,7 @@ import base64
 ROOT_DIR = Path(__file__).resolve().parent.parent  # /mount/src/aura
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
-from package_aura.multiple_mapping import discomfort_to_label
+from package_aura.helper_functions import discomfort_to_label
 
 
 # ---------- #
