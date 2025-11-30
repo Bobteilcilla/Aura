@@ -29,8 +29,7 @@ def train_gradient_boosting_model():
     """
 
     # 1. Fetch data
-    df_train = pd.read_csv("gs://aura_datasets_training_validation/AURA_aug_sep_60k.csv")
-    df_val = pd.read_csv("gs://aura_datasets_training_validation/AURA_validation_sep_12k.csv")
+    df_train, df_val = load_and_prepare_new_dataset()
 
     # 2. Define X and y for training and validation set
     feature_cols = ["noise_db", "light_lux", "crowd_count"]
