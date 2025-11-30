@@ -14,7 +14,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import GridSearchCV
 
 from package_aura.gcs_functions import upload_data_to_gcs, load_data_from_gcs
-
+from package_aura.prepare_new_dataset import load_and_prepare_new_dataset
 
 def train_gradient_boosting_model():
     """
