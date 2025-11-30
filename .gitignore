@@ -72,3 +72,6 @@ docker-compose.override.yml
 tmp/
 temp/
 raw-data/
+
+# gcp
+gcp/
