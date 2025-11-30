@@ -8,8 +8,7 @@ BUCKET_NAME = "aura_datasets_training_validation"
 # Exact object names inside the bucket
 
 FILES_TO_DOWNLOAD = {
-    "AURA_aug_sep_60k.csv": "AURA_aug_sep_60k.csv",
-    "AURA_validation_sep_12k.csv": "AURA_validation_sep_12k.csv",
+    "new_dataset_with_target.csv": "new_dataset_with_target.csv",
 }
 
 
