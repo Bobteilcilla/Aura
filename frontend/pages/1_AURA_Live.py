@@ -15,16 +15,23 @@ import streamlit.components.v1 as components
 
 st.set_page_config(layout="wide", page_title="AURA Live", page_icon="🎧📸")
 
-# Remove Streamlit default padding/margins
+# Remove Streamlit default padding and enforce white full-page background
 st.markdown(
     """
     <style>
-    .main .block-container {
-        padding-top: 0rem;
-        padding-bottom: 0rem;
-        padding-left: 0rem;
-        padding-right: 0rem;
-        margin: 0;
+    html, body, .main {
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100% !important;
+        width: 100% !important;
+        overflow-x: hidden;
+    }
+
+    .block-container {
+        padding: 0 !important;
+        margin: 0 auto !important;
+        max-width: 100% !important;
     }
     </style>
     """,
@@ -171,8 +178,8 @@ html = f"""
     background-image: url('{BASE_RING_DATA_URL}');  /* original ring at start */
     background-size: auto 80vh;  /* image height = 80% of screen */
     background-repeat: no-repeat;
-    background-position: center top;
-    opacity: 1.0;
+    background-position: center 6%;
+    opacity: 0.7;
     z-index: -1;
     transition: background-image 0.4s ease, filter 0.4s ease;
     pointer-events: none; /* don't block clicks */
@@ -198,16 +205,20 @@ html = f"""
 
   .title {{
     font-family: Geneva, sans-serif;
+    font-weight: Bold;
+    font-size: 7rem;
+    letter-spacing: 0.5em;
     text-align: center;
-    font-size: 4rem;
-    font-weight: 800;
     margin: 0;
-    padding-top: 1rem;
+    padding-left: 0.5em;
+    padding-top: 0rem;
   }}
 
   .subtitle {{
+    font-family: Geneva, sans-serif;
     text-align: center;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+    margin-top: -1.5rem;
     margin-bottom: 2rem;
   }}
     /* Comfort bar with bubble pointer */
@@ -497,8 +508,8 @@ html = f"""
 <div class="bg-image" id="bg-ring"></div>
 <div class="overlay" id="overlay-root">
   <div class="container">
-    <div class="title">AURA LIVE</div>
-    <div class="subtitle">REAL-TIME ENVIRONMENT QUALITY CLASSIFICATION (browser-based sensing)</div>
+    <div class="title">AURA</div>
+    <div class="subtitle">REAL-TIME ENVIRONMENT QUALITY CLASSIFICATION</div>
        <div class="comfort-wrapper">
       <div class="comfort-bar-track">
         <div id="comfort-pointer" class="comfort-pointer"></div>
