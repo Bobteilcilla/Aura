@@ -72,3 +72,6 @@ docker-compose.override.yml
 tmp/
 temp/
 raw-data/
+
+# --- Cloud provider configs ---
+gcp/
