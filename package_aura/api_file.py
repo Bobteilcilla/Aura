@@ -9,8 +9,7 @@ import io
 from PIL import Image
 from ultralytics import YOLO
 
-from package_aura.hello_aura import hello_aura
-from package_aura.linreg_model import linreg_model_predict
+from package_aura.model_functions import model_predict
 
 
 # ---------------- #
@@ -37,13 +36,6 @@ app.add_middleware(
 def root():
     return {"greeting": "AURA is up and running!"}
 
-
-@app.get("/hello")
-def hello():
-    """Simple test endpoint using your existing hello_aura() function."""
-    return {"greeting": hello_aura()}
-
-
 # -------------------------- #
 # PREDICTION ENDPOINT (/predict)
 # -------------------------- #
@@ -58,7 +50,7 @@ def predict(noise_db: float, light_lux: float, crowd_count: float):
       - light_lux  (e.g. 78–1200)
       - crowd_count (float from YOLO or your mapping)
     """
-    return linreg_model_predict(float(noise_db), float(light_lux), float(crowd_count))
+    return model_predict(noise_db=float(noise_db), light_lux=float(light_lux), crowd_count=float(crowd_count), model_prefix="gb_models")
 
 
 # ------------------------------ #

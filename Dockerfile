@@ -2,6 +2,7 @@ FROM python:3.12-slim
 
 # Environment vars
 ENV MODEL_BUCKET=aura_model_data
+ENV DATA_BUCKET=aura_datasets_training_validation
 
 # Set working directory
 WORKDIR /app
