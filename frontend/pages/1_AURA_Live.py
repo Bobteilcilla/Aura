@@ -169,6 +169,7 @@ html = f"""
     padding: 0;
     font-family: Arial, sans-serif;
     background: #ffffff;  /* pure white */
+    transition: background 0.8s ease;  /* smooth color transition */
   }}
 
   /* Ring as background image */
@@ -223,7 +224,7 @@ html = f"""
   }}
     /* Comfort bar with bubble pointer */
   .comfort-wrapper {{
-    max-width: 480px;
+    max-width: 1565px;
     margin: 0 auto 2rem auto;
     text-align: center;
   }}
@@ -231,7 +232,7 @@ html = f"""
   .comfort-bar-track {{
     position: relative;
     width: 100%;
-    height: 12px;
+    height: 24px;
     border-radius: 999px;
     overflow: hidden;
     box-shadow: 0 0 3px rgba(0,0,0,0.1) inset;
@@ -249,8 +250,8 @@ html = f"""
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 12px;        /* smaller */
-  height: 12px;       /* smaller */
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   background: #ffffff;
   border: 2px solid rgba(0,0,0,0.15);
@@ -410,15 +411,17 @@ html = f"""
   video {{
     width: 100%;
     max-width: 420px;
+    height: 300px;
     border-radius: 0.8rem;
-    background: #000;
+    background: #d1d5db;
     display: block;
-    margin: 0 auto;
+    margin: 0.8rem auto 0 auto;
+    object-fit: cover;
   }}
 
   .metric {{
     font-size: 1.1rem;
-    margin-top: 0.8rem;
+    margin-top: 0.4rem;
   }}
 
   .metric span.value {{
@@ -442,6 +445,8 @@ html = f"""
     cursor: pointer;
     background: #000;
     color: #fff;
+    min-width: 235px; /* equal minimum width */
+    text-align: center;
   }}
 
   .btn:disabled {{
@@ -492,14 +497,11 @@ html = f"""
 #wave-canvas {{
     width: 100%;
     max-width: 420px;
-    height: 70px;
+    height: 300px;
     border-radius: 0.8rem;
-    background: radial-gradient(circle at 10% 0%, #1b1b1f 0%, #050509 60%, #000000 100%);
+    background: #d1d5db;
     display: block;
-    margin: 0 auto;
-    box-shadow:
-      0 8px 20px rgba(0,0,0,0.35),
-      0 0 0 1px rgba(255,255,255,0.04);
+  margin: 0.8rem auto 0 auto;
 }}
 
 </style>
@@ -510,17 +512,12 @@ html = f"""
   <div class="container">
     <div class="title">AURA</div>
     <div class="subtitle">REAL-TIME ENVIRONMENT QUALITY CLASSIFICATION</div>
-       <div class="comfort-wrapper">
-      <div class="comfort-bar-track">
-        <div id="comfort-pointer" class="comfort-pointer"></div>
-      </div>
-      <div class="comfort-labels">
-        <span>Very comfy</span>
-        <span>Comfy</span>
-        <span>Neutral</span>
-        <span>Uneasy</span>
-        <span>Stressed</span>
-      </div>
+    <div class="controls" style="margin-top:0.75rem;">
+      <button id="toggle-btn" class="btn">Start</button>
+      <button id="test-btn" class="btn" disabled>Test the Environment</button>
+    </div>
+    <div style="text-align:center; margin-top:0.6rem;">
+        <span id="status-badge" class="status-badge idle">Idle</span>
     </div>
 
 </div>
@@ -536,48 +533,61 @@ html = f"""
       <!-- LEFT: Camera card -->
       <div class="card">
         <h3>🎥 Camera</h3>
-        <video id="video" autoplay playsinline style="display:block;"></video>
-        <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
         <div class="metric">
           Light (lux, model input): <span class="value" id="lux-feature-value">–</span>
         </div>
-
-        <!-- YOLO output image -->
-        <div class="metric" style="margin-top:1rem;">
-          <strong>YOLO detection frame:</strong>
-          <img id="yolo-output-img"
-               style="
-                 width: 100%;
-                 max-width: 260px;
-                 max-height: 160px;
-                 object-fit: contain;
-                 border-radius: 0.8rem;
-                 margin-top: 0.5rem;
-                 display: none;
-               " />
-        </div>
+        <video id="video" autoplay playsinline style="display:block;"></video>
+        <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
       </div>
 
-      <!-- RIGHT: Microphone & Crowd card -->
+      <!-- MIDDLE: Microphone card -->
       <div class="card">
-        <h3>🎤 Microphone & 👥 Crowd</h3>
-        <canvas id="wave-canvas" width="400" height="80"></canvas>
+        <h3>🎤 Microphone</h3>
         <div class="metric">
           Noise (dB, model input): <span class="value" id="db-feature-value">–</span>
         </div>
-        <div class="metric" style="margin-top:1rem;">
-          Crowd from YOLO (model input): <span class="value" id="crowd-feature-value">–</span>
+        <canvas id="wave-canvas" width="400" height="80"></canvas>
+      </div>
+
+      <!-- RIGHT: Crowd card -->
+      <div class="card">
+        <h3>👥 Crowd</h3>
+        <div class="metric">
+          Crowd (num,model input): <span class="value" id="crowd-feature-value">–</span>
         </div>
+        <div id="yolo-placeholder" style="
+          width: 100%;
+          max-width: 420px;
+          height: 300px;
+          background: #d1d5db;
+          border-radius: 0.8rem;
+          margin: 0.8rem auto 0 auto;
+          display: block;
+        "></div>
+        <img id="yolo-output-img"
+             style="
+               width: 100%;
+               max-width: 420px;
+               height: 300px;
+               object-fit: contain;
+               border-radius: 0.8rem;
+               margin: 0.8rem auto 0 auto;
+               display: none;
+             " />
       </div>
     </div>
 
-    <div class="controls">
-      <button id="start-btn" class="btn">Start</button>
-      <button id="stop-btn" class="btn" disabled>Stop</button>
-      <button id="test-btn" class="btn" disabled>Test the Environment</button>
-    </div>
-    <div style="text-align:center; margin-top:1rem;">
-        <span id="status-badge" class="status-badge idle">Idle</span>
+    <div class="comfort-wrapper" style="margin-top:1.2rem;">
+      <div class="comfort-bar-track">
+        <div id="comfort-pointer" class="comfort-pointer"></div>
+      </div>
+      <div class="comfort-labels">
+        <span>Very comfy</span>
+        <span>Comfy</span>
+        <span>Neutral</span>
+        <span>Uneasy</span>
+        <span>Stressed</span>
+      </div>
     </div>
     <div id="status" class="status"></div>
 
@@ -592,13 +602,13 @@ html = f"""
 
   // Fixed foreground image (we keep this constant)
   const baseRingUrl = "{BASE_RING_DATA_URL}";
-  // Background colors by comfort label
+  // Background colors by comfort label (matching comfort bar gradient)
   const bgColors = {{
-    very_comfortable: "#eaffe9",
-    comfortable: "#f3fff1",
-    neutral: "#fffbe6",
-    uncomfortable: "#ffe9e3",
-    stressed: "#ffd9d9"
+    very_comfortable: "#00ffc8",
+    comfortable: "#8cffaa",
+    neutral: "#fff096",
+    uncomfortable: "#ffbe78",
+    stressed: "#ff788c"
   }};
 
   const video = document.getElementById("video");
@@ -607,9 +617,9 @@ html = f"""
   const dbFeatureSpan = document.getElementById("db-feature-value");
   const crowdFeatureSpan = document.getElementById("crowd-feature-value");
   const yoloOutputImg = document.getElementById("yolo-output-img");
+  const yoloPlaceholder = document.getElementById("yolo-placeholder");
 
-  const startBtn = document.getElementById("start-btn");
-  const stopBtn = document.getElementById("stop-btn");
+  const toggleBtn = document.getElementById("toggle-btn");
   const testBtn = document.getElementById("test-btn");
   const statusDiv = document.getElementById("status");
   const resultDiv = document.getElementById("result");
@@ -892,8 +902,7 @@ function setStatus(message, mode = "idle") {{
 
       running = true;
       testBtn.disabled = false;
-      stopBtn.disabled = false;
-      startBtn.disabled = true;
+      toggleBtn.textContent = "Stop";
 
       resultDiv.style.display = "none";
       resultDiv.textContent = "";
@@ -945,18 +954,18 @@ function setStatus(message, mode = "idle") {{
     drawEqualizer(0);
 
     testBtn.disabled = true;
-    stopBtn.disabled = true;
-    startBtn.disabled = false;
+    toggleBtn.textContent = "Start";
 
     // Back to original ring, no glow
     updateRingForScore(null);
     updateComfortPointer(null);
     updateCardsForScore(null);
 
-    // Clear YOLO output image
-    if (yoloOutputImg) {{
+    // Clear YOLO output image and show placeholder
+    if (yoloOutputImg && yoloPlaceholder) {{
         yoloOutputImg.style.display = "none";
         yoloOutputImg.src = "";
+        yoloPlaceholder.style.display = "block";
     }}
     setStatus("Mic & camera stopped.", "idle");
   }}
@@ -1090,10 +1099,11 @@ function setStatus(message, mode = "idle") {{
     const crowdFeature = yoloResult.crowd_count;
     crowdFeatureSpan.textContent = crowdFeature.toFixed(1);
 
-    // NEW: show YOLO image if backend returned it
-    if (yoloResult.image_base64 && yoloOutputImg) {{
+    // Show YOLO image and hide placeholder if backend returned it
+    if (yoloResult.image_base64 && yoloOutputImg && yoloPlaceholder) {{
         yoloOutputImg.src = yoloResult.image_base64;
         yoloOutputImg.style.display = "block";
+        yoloPlaceholder.style.display = "none";
     }}
 
       setStatus("Calling AURA model with 3 numbers (noise, light, crowd)…", "running");
@@ -1155,8 +1165,13 @@ function setStatus(message, mode = "idle") {{
     }}
   }}
 
-  startBtn.addEventListener("click", startMedia);
-  stopBtn.addEventListener("click", stopMedia);
+  toggleBtn.addEventListener("click", () => {{
+    if (running) {{
+      stopMedia();
+    }} else {{
+      startMedia();
+    }}
+  }});
   testBtn.addEventListener("click", testEnvironment);
 
   // Initial original ring, no glow
