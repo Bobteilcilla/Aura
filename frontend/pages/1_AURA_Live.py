@@ -37,7 +37,7 @@ st.markdown(
 # ------------ #
 
 ROOT_DIR = Path(__file__).resolve().parent.parent  # /.../frontend/..
-BASE_RING_PATH = ROOT_DIR / "ring-noback.png"
+BASE_RING_PATH = ROOT_DIR / "AURA_Background_HD.png"
 
 # Colors for each comfort level (RGB)
 RING_VARIANT_CONFIG = {
@@ -579,9 +579,16 @@ html = f"""
   const predictUrl = "{PREDICT_URL}";
   const yoloUrl = "{YOLO_URL}";
 
-  // Tinted ring variants (data URLs) passed from Python
-  const ringImages = {RING_IMAGES_JSON};
-  const baseRingUrl = "{BASE_RING_DATA_URL}";  // original ring
+  // Fixed foreground image (we keep this constant)
+  const baseRingUrl = "{BASE_RING_DATA_URL}";
+  // Background colors by comfort label
+  const bgColors = {{
+    very_comfortable: "#eaffe9",
+    comfortable: "#f3fff1",
+    neutral: "#fffbe6",
+    uncomfortable: "#ffe9e3",
+    stressed: "#ffd9d9"
+  }};
 
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
@@ -768,14 +775,17 @@ function setStatus(message, mode = "idle") {{
     comfortPointer.style.opacity = "1";
   }}
 
-  // Change tinted ring + glow according to score
+  // Keep fixed foreground image; change page bg color according to score
   function updateRingForScore(score) {{
     if (!bgRing) return;
 
-    // Default: original ring, no glow
+    // Always show the fixed image
+    bgRing.style.backgroundImage = "url('" + baseRingUrl + "')";
+
+    // Default: no glow, neutral bg
     if (score === null || score === undefined || isNaN(score)) {{
-      bgRing.style.backgroundImage = "url('" + baseRingUrl + "')";
       bgRing.style.filter = "none";
+      document.body.style.background = "#ffffff";
       return;
     }}
 
@@ -799,9 +809,11 @@ function setStatus(message, mode = "idle") {{
       glowColor = "rgba(255, 120, 140, 0.95)";
     }}
 
-    const imgUrl = ringImages[ringKey] || ringImages["neutral"] || baseRingUrl;
-    bgRing.style.backgroundImage = "url('" + imgUrl + "')";
+    // Optional glow
     bgRing.style.filter = "drop-shadow(0 0 45px " + glowColor + ")";
+    // Change page background color behind the fixed image
+    const bg = bgColors[ringKey] || "#ffffff";
+    document.body.style.background = bg;
   }}
    function updateCardsForScore(score) {{
     const cards = document.querySelectorAll(".card");

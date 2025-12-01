@@ -1,5 +1,5 @@
 build_container_local:
-	docker build --tag=${IMAGE}:dev .
+	docker build --platform linux/amd64 --tag=${IMAGE}:dev .
 
 run_container_local:
 	docker run -it -e PORT=8000 -p 8080:8000 ${IMAGE}:dev
@@ -22,7 +22,8 @@ deploy_to_cloud_run:
 run_container_gcp:
 	docker run -it \
 		-e PORT=8000 \
-		-e GOOGLE_APPLICATION_CREDENTIALS=/secrets/aura-477808-dd52886578d3.json \
-		-v $(PWD)/gcp/aura-477808-dd52886578d3.json:/secrets/aura-477808-dd52886578d3.json:ro \
+		-e GOOGLE_APPLICATION_CREDENTIALS=/secrets/aura-477808-9705dd39a66e.json \
+		-e MODEL_BUCKET=${MODEL_BUCKET} \
+		-v $(PWD)/gcp/aura-477808-9705dd39a66e.json:/secrets/aura-477808-9705dd39a66e.json:ro \
 		-p 8080:8000 \
 		${IMAGE}:dev

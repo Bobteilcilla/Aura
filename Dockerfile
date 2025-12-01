@@ -18,12 +18,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
- && pip install --no-cache-dir numpy==1.26.4  # <--- belt & suspenders for numpy compatibility
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy code
 COPY package_aura package_aura
 COPY models models
 
 # Start backend (PORT is set via docker run)
-CMD uvicorn package_aura.api_file:app --host 0.0.0.0 --port ${PORT}
+CMD ["sh", "-c", "uvicorn package_aura.api_file:app --host 0.0.0.0 --port ${PORT}"]
