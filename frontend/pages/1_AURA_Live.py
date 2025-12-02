@@ -16,27 +16,40 @@ import streamlit.components.v1 as components
 st.set_page_config(layout="wide", page_title="AURA Live", page_icon="🎧📸")
 
 # Remove Streamlit default padding and enforce white full-page background
-st.markdown(
-    """
-    <style>
-    html, body, .main {
-        background-color: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 100% !important;
-        width: 100% !important;
-        overflow-x: hidden;
-    }
+st.markdown("""
+<style>
 
-    .block-container {
-        padding: 0 !important;
-        margin: 0 auto !important;
-        max-width: 100% !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+/* ZERO PADDING FOR EVERYTHING */
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+/* Remove padding/margins from the main container */
+[data-testid="stAppViewContainer"] {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Remove padding from the block container */
+.block-container {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Remove Streamlit header */
+[data-testid="stHeader"] {
+    display: none !important;
+}
+header {display: none !important;}
+
+/
+</style>
+""", unsafe_allow_html=True)
 
 
 # ------------ #
@@ -222,7 +235,8 @@ html = f"""
     margin-top: -1.5rem;
     margin-bottom: 2rem;
   }}
-    /* Comfort bar with bubble pointer */
+
+  /* Comfort bar with bubble pointer */
   .comfort-wrapper {{
     max-width: 1565px;
     margin: 0 auto 2rem auto;
@@ -247,19 +261,20 @@ html = f"""
   }}
 
   .comfort-pointer {{
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 2px solid rgba(0,0,0,0.15);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.12);
-  transition: left 0.4s ease;
-  pointer-events: none;
-  opacity: 0;
-}}
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 2px solid rgba(0,0,0,0.15);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    transition: left 0.4s ease;
+    pointer-events: none;
+    opacity: 0;
+  }}
+
   .comfort-labels {{
     display: flex;
     justify-content: space-between;
@@ -269,26 +284,26 @@ html = f"""
     margin-top: 4px;
   }}
 
-.grid {{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  gap: 2rem;
-  margin-top: 2rem;
-}}
-.card {{
+  .grid {{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    gap: 2rem;
+    margin-top: 3.5rem;
+  }}
+
+  .card {{
   position: relative;
   overflow: hidden;
 
-  /* frosted glass base */
   background: rgba(255,255,255,0.75);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 
   border-radius: 1rem;
-  padding: 1.4rem 1.6rem;
+  padding: 1.2rem 1.4rem; /* slightly reduced padding */
   box-sizing: border-box;
 
   border: 1px solid rgba(255, 255, 255, 0.55);
@@ -298,7 +313,7 @@ html = f"""
 
   flex: 1 1 0;
   max-width: 500px;
-  min-height: 420px;
+  min-height: 357px; /* 15% smaller */
 
   display: flex;
   flex-direction: column;
@@ -312,97 +327,98 @@ html = f"""
       border-color 0.25s ease;
 }}
 
-/* hover lift */
-.card:hover {{
-  transform: translateY(-4px);
-  box-shadow:
+  /* hover lift */
+  .card:hover {{
+    transform: translateY(-4px);
+    box-shadow:
       0 10px 30px rgba(0,0,0,0.14),
       0 4px 10px rgba(0,0,0,0.08);
-  background: rgba(255,255,255,0.82);
-  border-color: rgba(255,255,255,0.75);
-}}
-
-/* shimmer / inner glow layer */
-.card::before {{
-  content: "";
-  position: absolute;
-  inset: -50%;
-  background: linear-gradient(
-    120deg,
-    rgba(255,255,255,0.00) 0%,
-    rgba(255,255,255,0.55) 50%,
-    rgba(255,255,255,0.00) 100%
-  );
-  transform: translateX(-100%);
-  opacity: 0;
-  pointer-events: none;
-}}
-
-/* run shimmer sweep */
-.card.shimmer::before {{
-  animation: card-shimmer 1.5s ease-out;
-  opacity: 1;
-}}
-
-@keyframes card-shimmer {{
-  0% {{
-    transform: translateX(-120%);
-    opacity: 0;
+    background: rgba(255,255,255,0.82);
+    border-color: rgba(255,255,255,0.75);
   }}
-  25% {{
+
+  /* shimmer / inner glow layer */
+  .card::before {{
+    content: "";
+    position: absolute;
+    inset: -50%;
+    background: linear-gradient(
+      120deg,
+      rgba(255,255,255,0.00) 0%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0.00) 100%
+    );
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }}
+
+  /* run shimmer sweep */
+  .card.shimmer::before {{
+    animation: card-shimmer 1.5s ease-out;
     opacity: 1;
   }}
-  100% {{
-    transform: translateX(120%);
-    opacity: 0;
+
+  @keyframes card-shimmer {{
+    0% {{
+      transform: translateX(-120%);
+      opacity: 0;
+    }}
+    25% {{
+      opacity: 1;
+    }}
+    100% {{
+      transform: translateX(120%);
+      opacity: 0;
+    }}
   }}
-}}
-/* score-dependent tinting */
 
-/* Very comfortable (green/mint) */
-.card.score-very_comfortable {{
-  border-color: rgba(0, 255, 200, 0.6);
-  box-shadow:
-    0 8px 22px rgba(0, 180, 150, 0.18),
-    0 2px 6px rgba(0, 0, 0, 0.04);
-  background: rgba(255,255,255,0.78);
-}}
+  /* score-dependent tinting */
 
-/* Comfortable */
-.card.score-comfortable {{
-  border-color: rgba(140, 255, 170, 0.6);
-  box-shadow:
-    0 8px 22px rgba(80, 200, 120, 0.18),
-    0 2px 6px rgba(0, 0, 0, 0.04);
-  background: rgba(255,255,255,0.8);
-}}
+  /* Very comfortable (green/mint) */
+  .card.score-very_comfortable {{
+    border-color: rgba(0, 255, 200, 0.6);
+    box-shadow:
+      0 8px 22px rgba(0, 180, 150, 0.18),
+      0 2px 6px rgba(0, 0, 0, 0.04);
+    background: rgba(255,255,255,0.78);
+  }}
 
-/* Neutral */
-.card.score-neutral {{
-  border-color: rgba(255, 240, 150, 0.6);
-  box-shadow:
-    0 8px 22px rgba(200, 180, 80, 0.16),
-    0 2px 6px rgba(0, 0, 0, 0.05);
-  background: rgba(255,255,255,0.83);
-}}
+  /* Comfortable */
+  .card.score-comfortable {{
+    border-color: rgba(140, 255, 170, 0.6);
+    box-shadow:
+      0 8px 22px rgba(80, 200, 120, 0.18),
+      0 2px 6px rgba(0, 0, 0, 0.04);
+    background: rgba(255,255,255,0.8);
+  }}
 
-/* Uncomfortable */
-.card.score-uncomfortable {{
-  border-color: rgba(255, 190, 120, 0.7);
-  box-shadow:
-    0 8px 22px rgba(230, 150, 80, 0.22),
-    0 2px 6px rgba(0, 0, 0, 0.06);
-  background: rgba(255,255,255,0.86);
-}}
+  /* Neutral */
+  .card.score-neutral {{
+    border-color: rgba(255, 240, 150, 0.6);
+    box-shadow:
+      0 8px 22px rgba(200, 180, 80, 0.16),
+      0 2px 6px rgba(0, 0, 0, 0.05);
+    background: rgba(255,255,255,0.83);
+  }}
 
-/* Stressed */
-.card.score-stressed {{
-  border-color: rgba(255, 120, 140, 0.75);
-  box-shadow:
-    0 10px 26px rgba(220, 80, 100, 0.28),
-    0 3px 10px rgba(0, 0, 0, 0.10);
-  background: rgba(255,255,255,0.9);
-}}
+  /* Uncomfortable */
+  .card.score-uncomfortable {{
+    border-color: rgba(255, 190, 120, 0.7);
+    box-shadow:
+      0 8px 22px rgba(230, 150, 80, 0.22),
+      0 2px 6px rgba(0, 0, 0, 0.06);
+    background: rgba(255,255,255,0.86);
+  }}
+
+  /* Stressed */
+  .card.score-stressed {{
+    border-color: rgba(255, 120, 140, 0.75);
+    box-shadow:
+      0 10px 26px rgba(220, 80, 100, 0.28),
+      0 3px 10px rgba(0, 0, 0, 0.10);
+    background: rgba(255,255,255,0.9);
+  }}
 
   .card h3 {{
     margin-top: 0;
@@ -411,7 +427,7 @@ html = f"""
   video {{
     width: 100%;
     max-width: 420px;
-    height: 300px;
+    height: 255px;
     border-radius: 0.8rem;
     background: #d1d5db;
     display: block;
@@ -434,6 +450,117 @@ html = f"""
     margin-top: 1.5rem;
     justify-content: center;
     flex-wrap: wrap;
+  }}
+
+  /* Controls row */
+  .controls-row {{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }}
+
+  /* Tooltip wrapper */
+  .info-tooltip {{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }}
+
+  /* Frosted circular info icon */
+  .info-button {{
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.65);
+    background: radial-gradient(circle at 30% 30%, #ffffff, #e5e7eb);
+    box-shadow:
+      0 4px 10px rgba(0,0,0,0.15),
+      0 0 0 1px rgba(0,0,0,0.02);
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #111827;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }}
+
+  .info-button:hover {{
+    transform: translateY(-1px);
+    box-shadow:
+      0 6px 18px rgba(0,0,0,0.22),
+      0 0 0 1px rgba(0,0,0,0.04);
+  }}
+
+  /* Tooltip bubble opens to the RIGHT */
+  /* Smaller tooltip bubble opens to the RIGHT */
+.info-bubble {{
+  position: absolute;
+  top: 40%; /* lowered overlap and lifts tooltip up */
+  left: calc(100% + 10px); /* a bit closer to the icon */
+  transform: translateY(-50%) scale(0.96);
+  opacity: 0;
+  pointer-events: none;
+
+  min-width: 210px;
+  max-width: 260px; /* narrower so it doesn't touch cards */
+  padding: 0.7rem 0.8rem;
+
+  border-radius: 0.7rem;
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 10px 26px rgba(0,0,0,0.14),
+    0 0 0 1px rgba(255,255,255,0.7);
+
+  text-align: left;
+  font-size: 0.9rem; /* smaller text */
+  line-height: 1.38;  /* nicer readability */
+  z-index: 50;
+
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}}
+
+/* Smaller arrow that points from bubble to the “i” icon */
+.info-bubble::before {{
+  content: "";
+  position: absolute;
+  left: -5px; /* closer to bubble edge */
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  box-shadow:
+    -1px -1px 1px rgba(255,255,255,0.8),
+    0 0 0 1px rgba(0,0,0,0.02);
+}}
+
+/* Show tooltip */
+.info-tooltip:hover .info-bubble,
+.info-tooltip:focus-within .info-bubble {{
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+  pointer-events: auto;
+}}
+
+
+  .info-bubble-title {{
+    font-weight: 600;
+    margin-bottom: 0.45rem;
+  }}
+
+  .info-bullet {{
+    display: block;
+    margin-left: 0.5rem;
   }}
 
   .btn {{
@@ -470,41 +597,60 @@ html = f"""
     font-weight: bold;
     white-space: pre-line;
   }}
+
   .status-badge {{
-  display: inline-block;
-  padding: 0.3rem 0.8rem;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}}
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }}
 
-.status-badge.idle {{
-  background: #eee;
-  color: #333;
-}}
+  .status-badge.idle {{
+    background: #eee;
+    color: #333;
+  }}
 
-.status-badge.running {{
-  background: #d1fae5;
-  color: #065f46;
-}}
+  .status-badge.running {{
+    background: #d1fae5;
+    color: #065f46;
+  }}
 
-.status-badge.error {{
-  background: #fee2e2;
-  color: #991b1b;
-}}
+  .status-badge.error {{
+    background: #fee2e2;
+    color: #991b1b;
+  }}
 
-#wave-canvas {{
+  #wave-canvas {{
     width: 100%;
     max-width: 420px;
-    height: 300px;
+    height: 255px;
     border-radius: 0.8rem;
     background: #d1d5db;
     display: block;
-  margin: 0.8rem auto 0 auto;
+    margin: 0.8rem auto 0 auto;
+  }}
+  /* Wrapper matches comfort bar width */
+.result-wrapper {{
+  max-width: 1565px; /* same as comfort-wrapper */
+  margin: 0 auto;
+  padding: 0 1rem; /* keeps it visually balanced */
+}}
+
+/* Result box fills full width of wrapper */
+.result-box {{
+  width: 100%;
+  text-align: center;
+  font-size: 2rem;      /* optional: bigger label */
+  font-weight: 600;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  box-sizing: border-box;
 }}
 
 </style>
+
 </head>
 <body>
 <div class="bg-image" id="bg-ring"></div>
@@ -512,29 +658,38 @@ html = f"""
   <div class="container">
     <div class="title">AURA</div>
     <div class="subtitle">REAL-TIME ENVIRONMENT QUALITY CLASSIFICATION</div>
-    <div class="controls" style="margin-top:0.75rem;">
-      <button id="toggle-btn" class="btn">Start</button>
-      <button id="test-btn" class="btn" disabled>Test the Environment</button>
+    <div class="controls-row">
+
+  <button id="toggle-btn" class="btn">Start</button>
+  <button id="test-btn" class="btn" disabled>Test the Environment</button>
+
+  <div class="info-tooltip" tabindex="-1">
+    <button class="info-button" aria-label="How AURA works">i</button>
+
+    <div class="info-bubble">
+      <div class="info-bubble-title">How AURA works</div>
+      <span class="info-bullet">• <b>Start</b> activates microphone & camera.</span>
+      <span class="info-bullet">• Noise, light & crowd update in real time.</span>
+      <span class="info-bullet">• <b>Test the Environment</b> captures a frame and sends all inputs to the AI.</span>
+      <span class="info-bullet">• AURA returns comfort level, score and values.</span>
     </div>
-    <div style="text-align:center; margin-top:0.6rem;">
-        <span id="status-badge" class="status-badge idle">Idle</span>
-    </div>
+  </div>
 
 </div>
 
+<!-- IDLE BADGE stays right here exactly as before -->
+<div style="text-align:center; margin-top:0.6rem;">
+    <span id="status-badge" class="status-badge idle">Idle</span>
+</div>
 
-    <p style="text-align:center;">
-      Use <b>Start</b> to activate microphone & camera, <b>Stop</b> to turn them off.
-      When you press <b>Test the Environment</b>, AURA captures the current noise, light
-      and a single camera frame for crowd detection (YOLO), then sends the 3 inputs to the AI model.
-    </p>
+</div>
 
     <div class="grid">
       <!-- LEFT: Camera card -->
       <div class="card">
         <h3>🎥 Camera</h3>
         <div class="metric">
-          Light (lux, model input): <span class="value" id="lux-feature-value">–</span>
+          Brightness (in lux): <span class="value" id="lux-feature-value"> </span>
         </div>
         <video id="video" autoplay playsinline style="display:block;"></video>
         <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
@@ -544,7 +699,7 @@ html = f"""
       <div class="card">
         <h3>🎤 Microphone</h3>
         <div class="metric">
-          Noise (dB, model input): <span class="value" id="db-feature-value">–</span>
+          Sound Level (in dB): <span class="value" id="db-feature-value"> </span>
         </div>
         <canvas id="wave-canvas" width="400" height="80"></canvas>
       </div>
@@ -553,12 +708,12 @@ html = f"""
       <div class="card">
         <h3>👥 Crowd</h3>
         <div class="metric">
-          Crowd (num,model input): <span class="value" id="crowd-feature-value">–</span>
+          People Count : <span class="value" id="crowd-feature-value"> </span>
         </div>
         <div id="yolo-placeholder" style="
           width: 100%;
           max-width: 420px;
-          height: 300px;
+          height: 255px;
           background: #d1d5db;
           border-radius: 0.8rem;
           margin: 0.8rem auto 0 auto;
@@ -568,7 +723,7 @@ html = f"""
              style="
                width: 100%;
                max-width: 420px;
-               height: 300px;
+               height: 255px;
                object-fit: contain;
                border-radius: 0.8rem;
                margin: 0.8rem auto 0 auto;
@@ -592,7 +747,10 @@ html = f"""
     <div id="status" class="status"></div>
 
     <div id="status" class="status"></div>
+    <div class="result-wrapper">
     <div id="result" class="result-box" style="display:none;"></div>
+</div>
+
   </div>
 </div>
 
@@ -1091,13 +1249,13 @@ function setStatus(message, mode = "idle") {{
         ? smoothedLuxFeature
         : mapLuxToFeature(currentLux);
 
-    setStatus("Capturing frame & running YOLO crowd detection…", "running");
+    setStatus(" ", "running");
     resultDiv.style.display = "none";
 
     try {{
-      const yoloResult = await captureCrowdFromYOLO();
-    const crowdFeature = yoloResult.crowd_count;
-    crowdFeatureSpan.textContent = crowdFeature.toFixed(1);
+    const yoloResult = await captureCrowdFromYOLO();
+    const crowdFeature = Number(yoloResult.crowd_count);
+    crowdFeatureSpan.textContent = Math.round(crowdFeature);
 
     // Show YOLO image and hide placeholder if backend returned it
     if (yoloResult.image_base64 && yoloOutputImg && yoloPlaceholder) {{
@@ -1106,12 +1264,12 @@ function setStatus(message, mode = "idle") {{
         yoloPlaceholder.style.display = "none";
     }}
 
-      setStatus("Calling AURA model with 3 numbers (noise, light, crowd)…", "running");
+      setStatus(" ", "running");
 
       const url = new URL(predictUrl);
       url.searchParams.set("noise_db", noiseFeature.toFixed(2));
       url.searchParams.set("light_lux", lightFeature.toFixed(2));
-      url.searchParams.set("crowd_count", crowdFeature.toFixed(2));
+      url.searchParams.set("crowd_count", Math.round(crowdFeature));
 
       const resp = await fetch(url.toString());
       if (!resp.ok) throw new Error("Predict HTTP " + resp.status);
@@ -1146,14 +1304,11 @@ function setStatus(message, mode = "idle") {{
       updateCardsForScore(score);
       resultDiv.style.display = "block";
       resultDiv.style.background = cardBg;
-      resultDiv.textContent =
-        label +
-        " (score: " + (score !== undefined ? score.toFixed(2) : "n/a") + ")" +
-        "\\nnoise_db: " + noiseFeature.toFixed(1) +
-        " dB, light_lux: " + lightFeature.toFixed(1) +
-        ", crowd_count: " + crowdFeature.toFixed(1);
+      resultDiv.style.fontSize = "2rem";
+      resultDiv.style.fontWeight = "500";
+      resultDiv.textContent = label.toUpperCase();
 
-      setStatus("Prediction received from AURA backend.", "idle");
+      setStatus(" ", "idle");
     }} catch (err) {{
       console.error(err);
       setStatus("Error during YOLO or prediction: " + err.message, "error");
