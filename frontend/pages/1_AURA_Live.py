@@ -144,12 +144,12 @@ RING_IMAGES_JSON = json.dumps(RING_IMAGES)
 
 PREDICT_URL = os.getenv(
     "AURA_BACKEND_URL",
-    "http://localhost:8080/predict",
+    "https://aura-app-live-560310706773.europe-west1.run.app/predict",
 )
 
 YOLO_URL = os.getenv(
     "AURA_YOLO_URL",
-    "http://localhost:8080/yolo_crowd",
+    "https://aura-app-live-560310706773.europe-west1.run.app/yolo_crowd",
 )
 
 
