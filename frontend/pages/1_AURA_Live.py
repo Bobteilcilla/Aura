@@ -220,11 +220,11 @@ html = f"""
   .title {{
     font-family: Geneva, sans-serif;
     font-weight: Bold;
-    font-size: 7rem;
-    letter-spacing: 0.5em;
+    font-size: 7.3rem;
+    letter-spacing: 0.63em;
     text-align: center;
     margin: 0;
-    padding-left: 0.5em;
+    padding-left: 0.63em;
     padding-top: 0rem;
   }}
 
@@ -232,8 +232,10 @@ html = f"""
     font-family: Geneva, sans-serif;
     text-align: center;
     font-size: 1.2rem;
+    letter-spacing: 0.06em;
+    padding-left: 0.06em;
     margin-top: -1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }}
 
   /* Comfort bar with bubble pointer */
@@ -291,7 +293,7 @@ html = f"""
     align-items: flex-start;
     width: 100%;
     gap: 2rem;
-    margin-top: 3.5rem;
+    margin-top: 1.5rem;
   }}
 
   .card {{
@@ -458,7 +460,7 @@ html = f"""
     justify-content: center;
     align-items: center;
     gap: 1.2rem;
-    margin-top: 0.75rem;
+    margin-top: -0.5rem;
     flex-wrap: wrap;
   }}
 
@@ -472,21 +474,22 @@ html = f"""
 
   /* Frosted circular info icon */
   .info-button {{
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px
+    ;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.65);
-    background: radial-gradient(circle at 30% 30%, #ffffff, #e5e7eb);
+    border: 1px solid rgba(0,0,0,0.65);
+    background: radial-gradient(circle at 30% 30%, #000000, #e5e7eb);
     box-shadow:
       0 4px 10px rgba(0,0,0,0.15),
       0 0 0 1px rgba(0,0,0,0.02);
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1.6rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #111827;
+    color: #ffffff;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
   }}
 
@@ -604,7 +607,8 @@ html = f"""
     border-radius: 999px;
     font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0rem;
   }}
 
   .status-badge.idle {{
@@ -678,7 +682,7 @@ html = f"""
 </div>
 
 <!-- IDLE BADGE stays right here exactly as before -->
-<div style="text-align:center; margin-top:0.6rem;">
+<div style="text-align:center; margin-top:1.2rem;">
     <span id="status-badge" class="status-badge idle">Idle</span>
 </div>
 
@@ -689,19 +693,25 @@ html = f"""
       <div class="card">
         <h3>🎥 Camera</h3>
         <div class="metric">
-          Brightness (in lux): <span class="value" id="lux-feature-value"> </span>
+          Live Brightness (in lux): <span class="value" id="lux-feature-value"> </span>
         </div>
         <video id="video" autoplay playsinline style="display:block;"></video>
         <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+        <div style="margin-top: 0.8rem; font-size: 0.95rem; color: #555; text-align: center; font-weight: 500;">
+          <span id="brightness-display"><b>awaiting detection</b></span>
+        </div>
       </div>
 
       <!-- MIDDLE: Microphone card -->
       <div class="card">
         <h3>🎤 Microphone</h3>
         <div class="metric">
-          Sound Level (in dB): <span class="value" id="db-feature-value"> </span>
+          Live Sound Level (in dB): <span class="value" id="db-feature-value"> </span>
         </div>
         <canvas id="wave-canvas" width="400" height="80"></canvas>
+        <div style="margin-top: 0.8rem; font-size: 0.95rem; color: #555; text-align: center; font-weight: 500;">
+          <span id="sound-display"><b>awaiting detection</b></span>
+        </div>
       </div>
 
       <!-- RIGHT: Crowd card -->
@@ -729,6 +739,9 @@ html = f"""
                margin: 0.8rem auto 0 auto;
                display: none;
              " />
+        <div style="margin-top: 0.8rem; font-size: 0.95rem; color: #555; text-align: center; font-weight: 500;">
+          <span id="crowd-display"><b>awaiting detection</b></span>
+        </div>
       </div>
     </div>
 
@@ -776,6 +789,10 @@ html = f"""
   const crowdFeatureSpan = document.getElementById("crowd-feature-value");
   const yoloOutputImg = document.getElementById("yolo-output-img");
   const yoloPlaceholder = document.getElementById("yolo-placeholder");
+
+  const brightnessDisplay = document.getElementById("brightness-display");
+  const soundDisplay = document.getElementById("sound-display");
+  const crowdDisplay = document.getElementById("crowd-display");
 
   const toggleBtn = document.getElementById("toggle-btn");
   const testBtn = document.getElementById("test-btn");
@@ -1106,6 +1123,11 @@ function setStatus(message, mode = "idle") {{
     dbFeatureSpan.textContent = "–";
     luxFeatureSpan.textContent = "–";
 
+    // Reset prediction displays to idle state
+    brightnessDisplay.innerHTML = "<b>awaiting detection</b>";
+    soundDisplay.innerHTML = "<b>awaiting detection</b>";
+    crowdDisplay.innerHTML = "<b>awaiting detection</b>";
+
     smoothedDbFeature = null;
     smoothedLuxFeature = null;
 
@@ -1302,6 +1324,15 @@ function setStatus(message, mode = "idle") {{
       updateRingForScore(score);
       updateComfortPointer(score);
       updateCardsForScore(score);
+
+      // Update prediction displays with actual values sent to model
+      brightnessDisplay.innerHTML = "<b>" + Math.round(lightFeature) + " lux detected</b>";
+      soundDisplay.innerHTML = "<b>" + Math.round(noiseFeature) + " dB detected</b>";
+
+      const crowdCount = Math.round(crowdFeature);
+      const personOrPeople = (crowdCount === 1) ? "person" : "people";
+      crowdDisplay.innerHTML = "<b>" + crowdCount + " " + personOrPeople + " detected</b>";
+
       resultDiv.style.display = "block";
       resultDiv.style.background = cardBg;
       resultDiv.style.fontSize = "2rem";
