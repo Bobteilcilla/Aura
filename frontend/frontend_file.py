@@ -79,7 +79,7 @@ set_background(str(Path(__file__).parent / "AURA_background_graphic.png"))
 # API #
 # --- #
 
-API_URL = "https://aura-app-560310706773.europe-west1.run.app"
+API_URL = "https://aura-app-live-560310706773.europe-west1.run.app"
 
 
 # ----- #
