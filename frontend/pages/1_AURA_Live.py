@@ -1339,7 +1339,7 @@ function setStatus(message, mode = "idle") {{
       resultDiv.style.fontWeight = "500";
       resultDiv.textContent = label.toUpperCase();
 
-      setStatus(" ", "idle");
+      setStatus(" ", "running");
     }} catch (err) {{
       console.error(err);
       setStatus("Error during YOLO or prediction: " + err.message, "error");
